@@ -1,13 +1,15 @@
 package com.yz.pferestapi.controller;
 
+import com.yz.pferestapi.dto.RegisterDto;
+import com.yz.pferestapi.entity.RoleEnum;
 import com.yz.pferestapi.entity.User;
 import com.yz.pferestapi.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,9 +31,24 @@ public class UserController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('SCOPE_SUPER_ADMIN', 'SCOPE_ADMIN')")
     public ResponseEntity<List<User>> getAllUsers() {
         List <User> users = userService.getAllUsers();
 
         return ResponseEntity.ok(users);
+    }
+
+    @PostMapping
+    @PreAuthorize("hasAnyAuthority('SCOPE_SUPER_ADMIN', 'SCOPE_ADMIN')")
+    public ResponseEntity<?> createSimpleUser(@RequestBody RegisterDto registerDto) {
+        User createdSimpleUser = userService.createUser(registerDto, RoleEnum.USER);
+        return new ResponseEntity<>(createdSimpleUser, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/admin")
+    @PreAuthorize("hasAuthority('SCOPE_SUPER_ADMIN')")
+    public ResponseEntity<?> createAdmin(@RequestBody RegisterDto registerDto) {
+        User createdAdmin = userService.createUser(registerDto, RoleEnum.ADMIN);
+        return new ResponseEntity<>(createdAdmin, HttpStatus.CREATED);
     }
 }

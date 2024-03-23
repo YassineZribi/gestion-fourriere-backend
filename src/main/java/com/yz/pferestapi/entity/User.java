@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
@@ -34,9 +36,16 @@ public class User implements UserDetails {
     @Column(unique = true, length = 100, nullable = false)
     private String email;
 
-    @Getter
     @Column(nullable = false)
     private String password;
+
+    @ManyToMany(fetch=FetchType.EAGER)
+    @JoinTable(
+            name="users_roles",
+            joinColumns = {@JoinColumn(name="user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name="role_id", referencedColumnName = "id")}
+    )
+    private List<Role> roles = new ArrayList<>();
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
@@ -48,7 +57,8 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("SUPER_ADMIN"));
+        // return List.of(new SimpleGrantedAuthority("SUPER_ADMIN"));
+        return roles.stream().map(r -> new SimpleGrantedAuthority(r.getName().toString())).toList();
     }
 
     @Override

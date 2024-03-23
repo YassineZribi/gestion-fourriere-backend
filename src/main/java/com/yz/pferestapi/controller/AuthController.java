@@ -27,14 +27,12 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<User> register(@Valid @RequestBody RegisterDto registerDto) {
         User registeredUser = authService.register(registerDto);
-
         return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginDto loginDto) {
         LoginResponseDto loginResponseDto = authService.login(loginDto);
-
         return ResponseEntity.ok(loginResponseDto);
     }
 
