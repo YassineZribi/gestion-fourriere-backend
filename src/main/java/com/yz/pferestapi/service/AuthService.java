@@ -3,7 +3,11 @@ package com.yz.pferestapi.service;
 import com.yz.pferestapi.dto.LoginDto;
 import com.yz.pferestapi.dto.LoginResponseDto;
 import com.yz.pferestapi.dto.RegisterDto;
+import com.yz.pferestapi.entity.Role;
+import com.yz.pferestapi.entity.RoleEnum;
 import com.yz.pferestapi.entity.User;
+import com.yz.pferestapi.exception.AppException;
+import com.yz.pferestapi.repository.RoleRepository;
 import com.yz.pferestapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,11 +19,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
+
+    private final RoleRepository roleRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -27,21 +34,22 @@ public class AuthService {
 
     private final JwtService jwtService;
 
-    private final UserService userService;
 
     public User register(RegisterDto registerDto) {
 
         if (userRepository.existsByEmail(registerDto.getEmail())){
-            // TODO: add check for email exists in database
-            //throw new AppException(HttpStatus.BAD_REQUEST, "Email is already exists!.");
+            throw new AppException(HttpStatus.CONFLICT, "Email already exists!");
         }
+
+        Role optionalRole = roleRepository.findByName(RoleEnum.USER)
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Role not found"));
 
         User user = User.builder()
                 .firstName(registerDto.getFirstName())
                 .lastName(registerDto.getLastName())
                 .email(registerDto.getEmail())
                 .password(passwordEncoder.encode(registerDto.getPassword()))
-                .roles(new ArrayList<>())
+                .roles(List.of(optionalRole))
                 .build();
 
         return userRepository.save(user);
@@ -52,7 +60,8 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
         );
 
-        User user = userService.getUserByEmail(loginDto.getEmail());
+        User user = (User) authentication.getPrincipal();
+        // User user = userService.getUserByEmail(loginDto.getEmail());
 
         String accessToken = jwtService.generateAccessToken(authentication);
 

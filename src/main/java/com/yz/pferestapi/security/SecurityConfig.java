@@ -43,8 +43,15 @@ public class SecurityConfig {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    public SecurityConfig(UserRepository userRepository) {
+    private final CustomBearerTokenAuthenticationEntryPoint customBearerTokenAuthenticationEntryPoint;
+
+    private final CustomBearerTokenAccessDeniedHandler customBearerTokenAccessDeniedHandler;
+
+
+    public SecurityConfig(UserRepository userRepository, CustomBearerTokenAuthenticationEntryPoint customBearerTokenAuthenticationEntryPoint, CustomBearerTokenAccessDeniedHandler customBearerTokenAccessDeniedHandler) {
         this.userRepository = userRepository;
+        this.customBearerTokenAuthenticationEntryPoint = customBearerTokenAuthenticationEntryPoint;
+        this.customBearerTokenAccessDeniedHandler = customBearerTokenAccessDeniedHandler;
     }
 
 //    @Bean
@@ -81,7 +88,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(ar -> ar.requestMatchers("/auth/login", "/auth/register").permitAll())
                 .authorizeHttpRequests(ar -> ar.anyRequest().authenticated())
                 //.httpBasic(Customizer.withDefaults())
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())
+                        .authenticationEntryPoint(customBearerTokenAuthenticationEntryPoint)
+                        .accessDeniedHandler(customBearerTokenAccessDeniedHandler))
                 .build();
     }
 
