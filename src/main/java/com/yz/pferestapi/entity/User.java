@@ -36,6 +36,9 @@ public class User implements UserDetails {
     @Column(unique = true, length = 100, nullable = false)
     private String email;
 
+    @Column(length = 20, nullable = false)
+    private String phoneNumber;
+
     @Column(nullable = false)
     private String password;
 
@@ -57,7 +60,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // return List.of(new SimpleGrantedAuthority("SUPER_ADMIN"));
+        // return List.of(new SimpleGrantedAuthority("ADMIN"));
         return roles.stream().map(r -> new SimpleGrantedAuthority(r.getName().toString())).toList();
     }
 

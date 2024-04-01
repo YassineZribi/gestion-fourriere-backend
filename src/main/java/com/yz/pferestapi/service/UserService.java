@@ -4,16 +4,17 @@ import com.yz.pferestapi.dto.RegisterDto;
 import com.yz.pferestapi.entity.Role;
 import com.yz.pferestapi.entity.RoleEnum;
 import com.yz.pferestapi.entity.User;
+import com.yz.pferestapi.exception.AppException;
 import com.yz.pferestapi.repository.RoleRepository;
 import com.yz.pferestapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,14 +39,19 @@ public class UserService {
     }
 
     public User createUser(RegisterDto registerDto, RoleEnum roleEnum) {
+        if (userRepository.existsByEmail(registerDto.getEmail())){
+            throw new AppException(HttpStatus.CONFLICT, "Email already exists!");
+        }
+
         Role optionalRole = roleRepository.findByName(roleEnum)
-                .orElseThrow(() -> new UsernameNotFoundException("Role not found"));
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Role not found"));
 
 
         var user = User.builder()
                 .firstName(registerDto.getFirstName())
                 .lastName(registerDto.getLastName())
                 .email(registerDto.getEmail())
+                .phoneNumber(registerDto.getPhoneNumber())
                 .password(passwordEncoder.encode(registerDto.getPassword()))
                 .roles(List.of(optionalRole))
                 .build();
