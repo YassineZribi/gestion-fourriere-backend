@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class SuperAdminSeeder implements ApplicationListener<ContextRefreshedEvent> {
+public class Seeder2ForAdminCreation implements ApplicationListener<ContextRefreshedEvent> {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
 
 
-    public SuperAdminSeeder(
+    public Seeder2ForAdminCreation(
             RoleRepository roleRepository,
             UserRepository  userRepository,
             PasswordEncoder passwordEncoder
@@ -33,13 +33,13 @@ public class SuperAdminSeeder implements ApplicationListener<ContextRefreshedEve
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
-        this.createSuperAdministrator();
+        this.createAdmin();
     }
 
-    private void createSuperAdministrator() {
-        String email = "super.admin@gmail.com";
+    private void createAdmin() {
+        String email = "admin.admin@gmail.com";
 
-        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.SUPER_ADMIN);
+        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.ADMIN);
         Optional<User> optionalUser = userRepository.findByEmail(email);
 
         if (optionalRole.isEmpty() || optionalUser.isPresent()) {
@@ -47,9 +47,10 @@ public class SuperAdminSeeder implements ApplicationListener<ContextRefreshedEve
         }
 
         var user = User.builder()
-                .firstName("Super")
+                .firstName("Admin")
                 .lastName("Admin")
                 .email(email)
+                .phoneNumber("+21622585016")
                 .password(passwordEncoder.encode("1234"))
                 .roles(List.of(optionalRole.get()))
                 .build();

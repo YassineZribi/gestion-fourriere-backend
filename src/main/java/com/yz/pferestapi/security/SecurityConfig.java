@@ -14,7 +14,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -63,7 +62,7 @@ public class SecurityConfig {
 //                        .build(),
 //                User.withUsername("yz@gmail.com")
 //                        .password(passwordEncoder().encode("1234"))
-//                        .authorities("USER", "ADMIN")
+//                        .authorities("USER", "MANAGER")
 //                        .build()
 //        );
 //    }

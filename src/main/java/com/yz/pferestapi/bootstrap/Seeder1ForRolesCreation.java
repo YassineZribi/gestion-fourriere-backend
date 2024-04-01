@@ -10,11 +10,11 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
-public class RoleSeeder implements ApplicationListener<ContextRefreshedEvent> {
+public class Seeder1ForRolesCreation implements ApplicationListener<ContextRefreshedEvent> {
     private final RoleRepository roleRepository;
 
 
-    public RoleSeeder(RoleRepository roleRepository) {
+    public Seeder1ForRolesCreation(RoleRepository roleRepository) {
         this.roleRepository = roleRepository;
     }
 

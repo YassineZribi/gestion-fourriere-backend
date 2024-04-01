@@ -15,9 +15,9 @@ public class ProductsController {
         return List.of("Product1", "Product2", "Product3");
     }
 
-    @GetMapping("/admin")
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public List<String> getLoginInfoOnlyForAdmins() {
-        return List.of("Product1-Admin", "Product2-Admin", "Product3-Admin");
+    @GetMapping("/manager")
+    @PreAuthorize("hasAuthority('SCOPE_MANAGER')")
+    public List<String> getLoginInfoOnlyForManagers() {
+        return List.of("Product1-manager", "Product2-manager", "Product3-manager");
     }
 }
