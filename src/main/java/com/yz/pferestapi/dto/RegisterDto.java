@@ -7,10 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RegisterDto {
-    @NotEmpty(message = "Name should not be null or empty")
+    @NotEmpty(message = "First name should not be null or empty")
     private String firstName;
 
-    @NotEmpty(message = "Name should not be null or empty")
+    @NotEmpty(message = "Last name should not be null or empty")
     private String lastName;
 
     @NotEmpty(message = "Email should not be null or empty")
@@ -22,6 +22,6 @@ public class RegisterDto {
     private String phoneNumber;
 
     @NotEmpty
-    @Size(min = 4, message = "Comment body must be minimum 4 characters")
+    @Size(min = 4, message = "Password must be minimum 4 characters")
     private String password;
 }

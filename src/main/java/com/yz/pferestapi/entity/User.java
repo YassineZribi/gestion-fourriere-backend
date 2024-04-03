@@ -39,6 +39,8 @@ public class User implements UserDetails {
     @Column(length = 20, nullable = false)
     private String phoneNumber;
 
+    private String photoPath;
+
     @Column(nullable = false)
     private String password;
 
