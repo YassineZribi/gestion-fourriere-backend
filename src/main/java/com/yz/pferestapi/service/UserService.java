@@ -105,7 +105,7 @@ public class UserService {
             sort = Sort.by(orders).and(sort); // orders will be the primary sorting criteria, and sort object will be the secondary sorting criterion.
         }
 
-        Pageable pageable = PageRequest.of(userCriteria.getPage(), userCriteria.getSize(), sort);
+        Pageable pageable = PageRequest.of(userCriteria.getPage() - 1, userCriteria.getSize(), sort);
 
         return userRepository.findAll(spec, pageable);
     }
