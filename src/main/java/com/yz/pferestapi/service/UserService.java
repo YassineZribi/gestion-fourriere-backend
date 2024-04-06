@@ -37,8 +37,13 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    public User createUser(RegisterDto registerDto, RoleEnum roleEnum) {
-        if (userRepository.existsByEmail(registerDto.getEmail())){
+    public User createUser(RegisterDto registerDto, String roleName) {
+        if (!roleName.equalsIgnoreCase(RoleEnum.MANAGER.name()) && !roleName.equalsIgnoreCase(RoleEnum.OPERATOR.name())) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Invalid role name");
+        }
+        RoleEnum roleEnum = RoleEnum.valueOf(roleName.toUpperCase());
+
+        if (userRepository.existsByEmail(registerDto.getEmail())) {
             throw new AppException(HttpStatus.CONFLICT, "Email already exists!");
         }
 

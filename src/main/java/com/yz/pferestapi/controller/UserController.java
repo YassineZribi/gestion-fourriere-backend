@@ -33,17 +33,11 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @PostMapping("/operator")
-    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_MANAGER')")
-    public ResponseEntity<User> createOperator(@Valid @RequestBody RegisterDto registerDto) {
-        User createdSimpleUser = userService.createUser(registerDto, RoleEnum.OPERATOR);
-        return new ResponseEntity<>(createdSimpleUser, HttpStatus.CREATED);
-    }
-
-    @PostMapping("/manager")
+    @PostMapping
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<User> createManager(@Valid @RequestBody RegisterDto registerDto) {
-        User createdManager = userService.createUser(registerDto, RoleEnum.MANAGER);
-        return new ResponseEntity<>(createdManager, HttpStatus.CREATED);
+    public ResponseEntity<User> createUser(@Valid @RequestBody RegisterDto registerDto,
+                                        @RequestParam String roleName) {
+        User createdUser = userService.createUser(registerDto, roleName);
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 }
