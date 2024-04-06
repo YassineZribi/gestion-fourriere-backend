@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.server.resource.InvalidBearerTokenExc
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -92,6 +93,12 @@ public class ExceptionHandlerAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     ErrorResponse handleNoHandlerFoundException(Exception ex) {
         return new ErrorResponse(HttpStatus.NOT_FOUND.value(), "This API endpoint is not found.", ex.getMessage());
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ErrorResponse handleMissingRequestParameterException(MissingServletRequestParameterException ex) {
+        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Required request parameter is missing. Please ensure all necessary parameters are provided.", ex.getMessage());
     }
 
     /**
