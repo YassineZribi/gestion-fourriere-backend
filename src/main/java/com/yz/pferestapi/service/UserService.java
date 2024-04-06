@@ -66,6 +66,14 @@ public class UserService {
     public Page<User> findUsersByCriteria(UserCriteriaRequest userCriteria) {
         Specification<User> spec = Specification.where(null);
 
+        // Get non admins
+        spec = spec.and(UserSpecifications.notHasRole(RoleEnum.ADMIN.toString()));
+
+        // Get users with specific role
+        if (userCriteria.getRoleName() != null) {
+            spec = spec.and(UserSpecifications.hasRole(userCriteria.getRoleName()));
+        }
+
         if (userCriteria.getFirstName() != null) {
             spec = spec.and(UserSpecifications.firstNameContains(userCriteria.getFirstName()));
         }
@@ -88,7 +96,7 @@ public class UserService {
         if (userCriteria.getSort() != null && !userCriteria.getSort().isEmpty()) {
             List<Sort.Order> orders = userCriteria.getSort().stream()
                     .map(param -> {
-                        String[] parts = param.split(";");
+                        String[] parts = param.split("-");
                         String property = parts[0];
                         Sort.Direction direction = Sort.Direction.fromString(parts[1]);
                         return new Sort.Order(direction, property);
