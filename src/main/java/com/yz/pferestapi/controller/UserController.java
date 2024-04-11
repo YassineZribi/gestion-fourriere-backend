@@ -2,7 +2,6 @@ package com.yz.pferestapi.controller;
 
 import com.yz.pferestapi.dto.UserCriteriaRequest;
 import com.yz.pferestapi.dto.RegisterDto;
-import com.yz.pferestapi.entity.RoleEnum;
 import com.yz.pferestapi.entity.User;
 import com.yz.pferestapi.service.UserService;
 import jakarta.validation.Valid;
@@ -35,9 +34,23 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<User> createUser(@Valid @RequestBody RegisterDto registerDto,
-                                        @RequestParam String roleName) {
-        User createdUser = userService.createUser(registerDto, roleName);
+    public ResponseEntity<User> createUser(@Valid @RequestBody RegisterDto registerDto) {
+        User createdUser = userService.createUser(registerDto);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    public ResponseEntity<User> updateUser(@Valid @RequestBody RegisterDto registerDto, @PathVariable Long id) {
+        User updatedUser = userService.updateUser(registerDto, id);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    public ResponseEntity<User> deleteUser(@PathVariable Long id) {
+        System.out.println("id = " + id);
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -14,6 +14,7 @@ public class UserCriteriaRequest {
     private String lastName;
     private String email;
     private String phoneNumber;
+    private String roleName;
     private int page = 1; // default value for page
     private int size = 10; // default value for size
     private List<String> sort;

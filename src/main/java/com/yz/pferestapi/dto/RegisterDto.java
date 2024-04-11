@@ -21,7 +21,6 @@ public class RegisterDto {
     @Pattern(regexp = "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$", message = "Phone number is invalid") // source: https://ihateregex.io/expr/phone
     private String phoneNumber;
 
-    @NotEmpty
-    @Size(min = 4, message = "Password must be minimum 4 characters")
-    private String password;
+    @NotEmpty(message = "Role name should not be null or empty")
+    private String roleName;
 }
