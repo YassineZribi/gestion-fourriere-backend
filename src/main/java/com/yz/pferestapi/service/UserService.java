@@ -56,8 +56,8 @@ public class UserService {
                 .lastName(registerDto.getLastName())
                 .email(registerDto.getEmail())
                 .phoneNumber(registerDto.getPhoneNumber())
-                .password(passwordEncoder.encode(registerDto.getPassword()))
-                .roles(List.of(optionalRole))
+                .password(passwordEncoder.encode(generatedPassword))
+                .role(role)
                 .build();
 
         return userRepository.save(user);

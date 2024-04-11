@@ -8,7 +8,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -44,13 +43,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @ManyToMany(fetch=FetchType.EAGER)
-    @JoinTable(
-            name="users_roles",
-            joinColumns = {@JoinColumn(name="user_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name="role_id", referencedColumnName = "id")}
-    )
-    private List<Role> roles = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "role_id", referencedColumnName = "id")
+    private Role role;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
@@ -63,7 +58,7 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // return List.of(new SimpleGrantedAuthority("ADMIN"));
-        return roles.stream().map(r -> new SimpleGrantedAuthority(r.getName().toString())).toList();
+        return List.of(new SimpleGrantedAuthority(role.getName().toString()));
     }
 
     @Override

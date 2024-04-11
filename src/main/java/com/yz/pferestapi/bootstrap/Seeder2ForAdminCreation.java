@@ -10,7 +10,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -52,7 +51,7 @@ public class Seeder2ForAdminCreation implements ApplicationListener<ContextRefre
                 .email(email)
                 .phoneNumber("+21622585016")
                 .password(passwordEncoder.encode("1234"))
-                .roles(List.of(optionalRole.get()))
+                .role(optionalRole.get())
                 .build();
 
         userRepository.save(user);

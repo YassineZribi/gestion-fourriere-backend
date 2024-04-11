@@ -24,15 +24,15 @@ public class UserSpecifications {
 
     public static Specification<User> notHasRole(String roleName) {
         return (root, query, criteriaBuilder) -> {
-            Join<User, Role> roles = root.join("roles");
-            return criteriaBuilder.notEqual(criteriaBuilder.lower(roles.get("name")), roleName.trim().toLowerCase());
+            Join<User, Role> roleJoin = root.join("role");
+            return criteriaBuilder.notEqual(criteriaBuilder.lower(roleJoin.get("name")), roleName.trim().toLowerCase());
         };
     }
 
     public static Specification<User> hasRole(String roleName) {
         return (root, query, criteriaBuilder) -> {
-            Join<User, Role> roles = root.join("roles");
-            return criteriaBuilder.equal(criteriaBuilder.lower(roles.get("name")), roleName.trim().toLowerCase());
+            Join<User, Role> roleJoin = root.join("role");
+            return criteriaBuilder.equal(criteriaBuilder.lower(roleJoin.get("name")), roleName.trim().toLowerCase());
         };
     }
 }
