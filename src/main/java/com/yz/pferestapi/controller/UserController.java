@@ -1,7 +1,7 @@
 package com.yz.pferestapi.controller;
 
 import com.yz.pferestapi.dto.UserCriteriaRequest;
-import com.yz.pferestapi.dto.RegisterDto;
+import com.yz.pferestapi.dto.UpsertUserDto;
 import com.yz.pferestapi.entity.User;
 import com.yz.pferestapi.service.UserService;
 import jakarta.validation.Valid;
@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RequestMapping("/users")
 @RestController
@@ -34,21 +36,21 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<User> createUser(@Valid @RequestBody RegisterDto registerDto) {
-        User createdUser = userService.createUser(registerDto);
+    public ResponseEntity<User> createUser(@Valid @RequestBody UpsertUserDto upsertUserDto) {
+        User createdUser = userService.createUser(upsertUserDto);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<User> updateUser(@Valid @RequestBody RegisterDto registerDto, @PathVariable Long id) {
-        User updatedUser = userService.updateUser(registerDto, id);
+    public ResponseEntity<User> updateUser(@Valid @RequestBody UpsertUserDto upsertUserDto, @PathVariable Long id) {
+        User updatedUser = userService.updateUser(upsertUserDto, id);
         return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<User> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) throws IOException {
         System.out.println("id = " + id);
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();

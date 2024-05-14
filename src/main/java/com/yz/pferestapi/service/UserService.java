@@ -1,6 +1,6 @@
 package com.yz.pferestapi.service;
 
-import com.yz.pferestapi.dto.RegisterDto;
+import com.yz.pferestapi.dto.UpsertUserDto;
 import com.yz.pferestapi.dto.UserCriteriaRequest;
 import com.yz.pferestapi.entity.Role;
 import com.yz.pferestapi.entity.RoleEnum;
@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,23 +30,22 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
-
     private final RoleRepository roleRepository;
+    private final FileService fileService;
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    public User createUser(RegisterDto registerDto) {
-        if (!registerDto.getRoleName().equalsIgnoreCase(RoleEnum.MANAGER.name()) && !registerDto.getRoleName().equalsIgnoreCase(RoleEnum.OPERATOR.name())) {
+    public User createUser(UpsertUserDto upsertUserDto) {
+        if (!upsertUserDto.getRoleName().equalsIgnoreCase(RoleEnum.MANAGER.name()) && !upsertUserDto.getRoleName().equalsIgnoreCase(RoleEnum.OPERATOR.name())) {
             throw new AppException(HttpStatus.BAD_REQUEST, "Invalid role name");
         }
-        RoleEnum roleEnum = RoleEnum.valueOf(registerDto.getRoleName().toUpperCase());
+        RoleEnum roleEnum = RoleEnum.valueOf(upsertUserDto.getRoleName().toUpperCase());
 
-        if (userRepository.existsByEmail(registerDto.getEmail())) {
+        if (userRepository.existsByEmail(upsertUserDto.getEmail())) {
             throw new AppException(HttpStatus.CONFLICT, "Email already exists!");
         }
 
@@ -57,10 +57,10 @@ public class UserService {
         System.out.println("generatedPassword = " + generatedPassword);
         
         var user = User.builder()
-                .firstName(registerDto.getFirstName())
-                .lastName(registerDto.getLastName())
-                .email(registerDto.getEmail())
-                .phoneNumber(registerDto.getPhoneNumber())
+                .firstName(upsertUserDto.getFirstName())
+                .lastName(upsertUserDto.getLastName())
+                .email(upsertUserDto.getEmail())
+                .phoneNumber(upsertUserDto.getPhoneNumber())
                 .password(passwordEncoder.encode(generatedPassword))
                 .role(role)
                 .build();
@@ -70,11 +70,11 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User updateUser(RegisterDto registerDto, Long id) {
-        if (!registerDto.getRoleName().equalsIgnoreCase(RoleEnum.MANAGER.name()) && !registerDto.getRoleName().equalsIgnoreCase(RoleEnum.OPERATOR.name())) {
+    public User updateUser(UpsertUserDto upsertUserDto, Long id) {
+        if (!upsertUserDto.getRoleName().equalsIgnoreCase(RoleEnum.MANAGER.name()) && !upsertUserDto.getRoleName().equalsIgnoreCase(RoleEnum.OPERATOR.name())) {
             throw new AppException(HttpStatus.BAD_REQUEST, "Invalid role name");
         }
-        RoleEnum roleEnum = RoleEnum.valueOf(registerDto.getRoleName().toUpperCase());
+        RoleEnum roleEnum = RoleEnum.valueOf(upsertUserDto.getRoleName().toUpperCase());
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "User not found"));
@@ -82,16 +82,16 @@ public class UserService {
         Role role = roleRepository.findByName(roleEnum)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Role not found"));
 
-        Optional<User> optionalUser = userRepository.findByEmail(registerDto.getEmail());
+        Optional<User> optionalUser = userRepository.findByEmail(upsertUserDto.getEmail());
 
         if (optionalUser.isPresent() && !optionalUser.get().getId().equals(id)) {
             throw new AppException(HttpStatus.CONFLICT, "Email already exists!");
         }
 
-        user.setFirstName(registerDto.getFirstName());
-        user.setLastName(registerDto.getLastName());
-        user.setEmail(registerDto.getEmail());
-        user.setPhoneNumber(registerDto.getPhoneNumber());
+        user.setFirstName(upsertUserDto.getFirstName());
+        user.setLastName(upsertUserDto.getLastName());
+        user.setEmail(upsertUserDto.getEmail());
+        user.setPhoneNumber(upsertUserDto.getPhoneNumber());
         user.setRole(role);
 
         // TODO: send SMS id email has been modified
@@ -146,9 +146,14 @@ public class UserService {
         return userRepository.findAll(spec, pageable);
     }
 
-    public void deleteUser(Long id) {
+    public void deleteUser(Long id) throws IOException {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "User not found"));
+
+        String photoPath = user.getPhotoPath();
+        if (photoPath != null && !photoPath.isEmpty()) {
+            fileService.deleteFile(photoPath);
+        }
 
         userRepository.delete(user);
     }

@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RegisterDto {
+public class UpsertUserDto {
     @NotEmpty(message = "First name should not be null or empty")
     private String firstName;
 
