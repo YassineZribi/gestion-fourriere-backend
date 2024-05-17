@@ -9,10 +9,10 @@ import com.yz.pferestapi.exception.AppException;
 import com.yz.pferestapi.repository.RoleRepository;
 import com.yz.pferestapi.repository.UserRepository;
 import com.yz.pferestapi.specification.UserSpecifications;
+import com.yz.pferestapi.util.CriteriaRequestUtil;
 import com.yz.pferestapi.util.PasswordGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -126,22 +126,9 @@ public class UserService {
             spec = spec.and(UserSpecifications.phoneNumberContains(userCriteria.getPhoneNumber()));
         }
 
-        // If no sorting criteria provided by the client, sort by "createdAt" DESC by default
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Sort sort = CriteriaRequestUtil.buildSortCriteria(userCriteria);
 
-        if (userCriteria.getSort() != null && !userCriteria.getSort().isEmpty()) {
-            List<Sort.Order> orders = userCriteria.getSort().stream()
-                    .map(param -> {
-                        String[] parts = param.split("-");
-                        String property = parts[0];
-                        Sort.Direction direction = Sort.Direction.fromString(parts[1]);
-                        return new Sort.Order(direction, property);
-                    })
-                    .collect(Collectors.toList());
-            sort = Sort.by(orders).and(sort); // orders will be the primary sorting criteria, and sort object will be the secondary sorting criterion.
-        }
-
-        Pageable pageable = PageRequest.of(userCriteria.getPage() - 1, userCriteria.getSize(), sort);
+        Pageable pageable = CriteriaRequestUtil.createPageable(userCriteria, sort);
 
         return userRepository.findAll(spec, pageable);
     }
