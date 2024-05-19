@@ -5,6 +5,7 @@ import com.yz.pferestapi.dto.UpsertMeasurementUnitDto;
 import com.yz.pferestapi.entity.MeasurementUnit;
 import com.yz.pferestapi.exception.AppException;
 import com.yz.pferestapi.mapper.MeasurementUnitMapper;
+import com.yz.pferestapi.repository.ArticleFamilyRepository;
 import com.yz.pferestapi.repository.MeasurementUnitRepository;
 import com.yz.pferestapi.specification.MeasurementUnitSpecifications;
 import com.yz.pferestapi.util.CriteriaRequestUtil;
@@ -21,7 +22,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MeasurementUnitService {
-    private  final MeasurementUnitRepository measurementUnitRepository;
+    private final MeasurementUnitRepository measurementUnitRepository;
+    private final ArticleFamilyRepository articleFamilyRepository;
 
     public MeasurementUnit getMeasurementUnit(Long measurementUnitId) {
         return measurementUnitRepository.findById(measurementUnitId)
@@ -82,12 +84,9 @@ public class MeasurementUnitService {
         MeasurementUnit measurementUnit = measurementUnitRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Measurement unit not found"));
 
-        // TODO: for articleFamily (plural: article families)
-        /*
         if (articleFamilyRepository.existsByMeasurementUnitId(id)) {
-            throw new AppException(HttpStatus.CONFLICT, "It is not possible to delete a Measurement unit that is used in Article family.");
+            throw new AppException(HttpStatus.CONFLICT, "It is not possible to delete a Measurement unit that is used in at least one Article family.");
         }
-         */
 
         measurementUnitRepository.delete(measurementUnit);
     }
