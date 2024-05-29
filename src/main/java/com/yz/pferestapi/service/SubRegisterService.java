@@ -39,6 +39,18 @@ public class SubRegisterService {
         return subRegisterRepository.findAll(spec);
     }
 
+    public List<SubRegister> findSubRegistersByNameAndRegisterId(String search, Long registerId) {
+        Specification<SubRegister> spec = Specification.where(null);
+
+        spec = spec.and(SubRegisterSpecifications.nameContains(search));
+
+        if (registerId != null) {
+            spec = spec.and(SubRegisterSpecifications.hasRegister(registerId));
+        }
+
+        return subRegisterRepository.findAll(spec);
+    }
+
     public Page<SubRegister> findSubRegistersByCriteria(SubRegisterCriteriaRequest subRegisterCriteria) {
         Specification<SubRegister> spec = Specification.where(null);
 

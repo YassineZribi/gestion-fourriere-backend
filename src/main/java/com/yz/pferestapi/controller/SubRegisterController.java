@@ -24,8 +24,8 @@ public class SubRegisterController {
 
     @GetMapping("/search")
     @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_MANAGER')")
-    public ResponseEntity<List<SubRegister>> getAllSubRegistersByName(@RequestParam(required = false, defaultValue = "") String name) {
-        List<SubRegister> subRegisters = subRegisterService.findSubRegistersByName(name);
+    public ResponseEntity<List<SubRegister>> getAllSubRegistersByName(@RequestParam(required = false, defaultValue = "") String name, @RequestParam(required = false) Long registerId) {
+        List<SubRegister> subRegisters = subRegisterService.findSubRegistersByNameAndRegisterId(name, registerId);
         return ResponseEntity.ok(subRegisters);
     }
 
