@@ -119,8 +119,9 @@ public class InputService {
             operationLine.setOperation(input);
             operationLine.setArticle(article);
             operationLine.setQuantity(upsertOperationLineDto.getQuantity());
-            operationLine.setUnitPrice(upsertOperationLineDto.getUnitPrice());
-            operationLine.setLineTotalAmount(operationLine.getQuantity() * operationLine.getUnitPrice());
+            operationLine.setNightlyAmount(upsertOperationLineDto.getNightlyAmount());
+            operationLine.setTransportFee(upsertOperationLineDto.getTransportFee());
+            operationLine.setLineTotalAmount(operationLine.getQuantity() * operationLine.getNightlyAmount() + operationLine.getTransportFee());
 
             operationLines.add(operationLine);
         }
@@ -177,8 +178,9 @@ public class InputService {
             for (UpsertOperationLineDto upsertOperationLineDto: upsertInputDto.getOperationLines()) {
                 if (Objects.equals(operationLine.getArticle().getId(), upsertOperationLineDto.getArticleId())) {
                     operationLine.setQuantity(upsertOperationLineDto.getQuantity());
-                    operationLine.setUnitPrice(upsertOperationLineDto.getUnitPrice());
-                    operationLine.setLineTotalAmount(operationLine.getQuantity() * operationLine.getUnitPrice());
+                    operationLine.setNightlyAmount(upsertOperationLineDto.getNightlyAmount());
+                    operationLine.setTransportFee(upsertOperationLineDto.getTransportFee());
+                    operationLine.setLineTotalAmount(operationLine.getQuantity() * operationLine.getNightlyAmount() + operationLine.getTransportFee());
                 }
             }
         }
@@ -214,8 +216,9 @@ public class InputService {
                 operationLine.setOperation(input);
                 operationLine.setArticle(article);
                 operationLine.setQuantity(upsertOperationLineDto.getQuantity());
-                operationLine.setUnitPrice(upsertOperationLineDto.getUnitPrice());
-                operationLine.setLineTotalAmount(operationLine.getQuantity() * operationLine.getUnitPrice());
+                operationLine.setNightlyAmount(upsertOperationLineDto.getNightlyAmount());
+                operationLine.setTransportFee(upsertOperationLineDto.getTransportFee());
+                operationLine.setLineTotalAmount(operationLine.getQuantity() * operationLine.getNightlyAmount() + operationLine.getTransportFee());
 
                 input.getOperationLines().add(operationLine);
             }

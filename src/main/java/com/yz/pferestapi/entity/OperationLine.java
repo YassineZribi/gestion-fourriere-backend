@@ -21,17 +21,23 @@ public class OperationLine {
     @ManyToOne
     @MapsId("operationId")
     @JoinColumn(name = "operation_id")
-    Operation operation;
+    private Operation operation;
 
     @ManyToOne
     @MapsId("articleId")
     @JoinColumn(name = "article_id")
-    Article article;
+    private Article article;
 
-    Double quantity;
+    @Column(nullable = false)
+    private Double quantity;
 
-    Double unitPrice;
+    @Column(nullable = false)
+    private Double nightlyAmount;
 
-    Double lineTotalAmount; // subTotal
+    @Column(nullable = false)
+    private Double transportFee; // frais de transport
+
+    @Column(nullable = false)
+    private Double lineTotalAmount; // subTotal
 
 }
