@@ -35,9 +35,9 @@ public class OperationLine {
     private Double nightlyAmount;
 
     @Column(nullable = false)
-    private Double transportFee; // frais de transport
+    private Double subTotalNightlyAmount;
 
     @Column(nullable = false)
-    private Double lineTotalAmount; // subTotal
+    private Double transportFee; // frais de transport
 
 }

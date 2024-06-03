@@ -120,8 +120,8 @@ public class InputService {
             operationLine.setArticle(article);
             operationLine.setQuantity(upsertOperationLineDto.getQuantity());
             operationLine.setNightlyAmount(upsertOperationLineDto.getNightlyAmount());
+            operationLine.setSubTotalNightlyAmount(operationLine.getNightlyAmount() * operationLine.getQuantity());
             operationLine.setTransportFee(upsertOperationLineDto.getTransportFee());
-            operationLine.setLineTotalAmount(operationLine.getQuantity() * operationLine.getNightlyAmount() + operationLine.getTransportFee());
 
             operationLines.add(operationLine);
         }
@@ -179,8 +179,8 @@ public class InputService {
                 if (Objects.equals(operationLine.getArticle().getId(), upsertOperationLineDto.getArticleId())) {
                     operationLine.setQuantity(upsertOperationLineDto.getQuantity());
                     operationLine.setNightlyAmount(upsertOperationLineDto.getNightlyAmount());
+                    operationLine.setSubTotalNightlyAmount(operationLine.getNightlyAmount() * operationLine.getQuantity());
                     operationLine.setTransportFee(upsertOperationLineDto.getTransportFee());
-                    operationLine.setLineTotalAmount(operationLine.getQuantity() * operationLine.getNightlyAmount() + operationLine.getTransportFee());
                 }
             }
         }
@@ -217,8 +217,8 @@ public class InputService {
                 operationLine.setArticle(article);
                 operationLine.setQuantity(upsertOperationLineDto.getQuantity());
                 operationLine.setNightlyAmount(upsertOperationLineDto.getNightlyAmount());
+                operationLine.setSubTotalNightlyAmount(operationLine.getNightlyAmount() * operationLine.getQuantity());
                 operationLine.setTransportFee(upsertOperationLineDto.getTransportFee());
-                operationLine.setLineTotalAmount(operationLine.getQuantity() * operationLine.getNightlyAmount() + operationLine.getTransportFee());
 
                 input.getOperationLines().add(operationLine);
             }
