@@ -14,17 +14,16 @@ import lombok.Setter;
 @Entity
 @Table(name = "operation_lines")
 public class OperationLine {
-    @EmbeddedId
-    private OperationLineKey id = new OperationLineKey();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @JsonIgnore
     @ManyToOne
-    @MapsId("operationId")
     @JoinColumn(name = "operation_id")
     private Operation operation;
 
     @ManyToOne
-    @MapsId("articleId")
     @JoinColumn(name = "article_id")
     private Article article;
 
