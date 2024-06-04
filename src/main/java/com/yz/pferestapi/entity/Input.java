@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "inputs")
+@Table(name = "input_operations")
 public class Input extends Operation {
     @Enumerated(EnumType.STRING)
     private InputStatus status = InputStatus.FULLY_IN;
@@ -32,6 +32,9 @@ public class Input extends Operation {
     @ManyToOne
     @JoinColumn(name = "source_id")
     private Source source;
+
+    @OneToMany(mappedBy = "input", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    List<InputOperationLine> inputOperationLines;
 
     @OneToMany(mappedBy = "input", fetch = FetchType.EAGER)
     private List<Output> outputs = new ArrayList<>();

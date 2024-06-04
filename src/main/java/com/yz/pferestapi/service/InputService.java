@@ -2,6 +2,7 @@ package com.yz.pferestapi.service;
 
 import com.yz.pferestapi.dto.InputCriteriaRequest;
 import com.yz.pferestapi.dto.UpsertInputDto;
+import com.yz.pferestapi.dto.UpsertInputOperationLineDto;
 import com.yz.pferestapi.dto.UpsertOperationLineDto;
 import com.yz.pferestapi.entity.*;
 import com.yz.pferestapi.exception.AppException;
@@ -24,12 +25,12 @@ import java.util.*;
 @RequiredArgsConstructor
 public class InputService {
     private final InputRepository inputRepository;
+    private final OutputRepository outputRepository;
     private final RegisterRepository registerRepository;
     private final SubRegisterRepository subRegisterRepository;
     private final OwnerRepository ownerRepository;
     private final SourceRepository sourceRepository;
     private final ArticleRepository articleRepository;
-    private final OperationRepository operationRepository;
 
     public Input getInput(Long inputId) {
         return inputRepository.findById(inputId)
@@ -70,7 +71,8 @@ public class InputService {
 
     @Transactional
     public Input createInput(UpsertInputDto upsertInputDto) {
-        if (operationRepository.existsByNumberAndYear(upsertInputDto.getNumber(), upsertInputDto.getYear())) {
+        if (inputRepository.existsByNumberAndYear(upsertInputDto.getNumber(), upsertInputDto.getYear())
+                || outputRepository.existsByNumberAndYear(upsertInputDto.getNumber(), upsertInputDto.getYear())) {
             throw new AppException(HttpStatus.CONFLICT, "Operation already exists!");
         }
 
@@ -98,7 +100,7 @@ public class InputService {
                     .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Source not found"));
         }
 
-        checkForDuplicateArticleIds(upsertInputDto.getOperationLines());
+        checkForDuplicateArticleIds(upsertInputDto.getInputOperationLines());
 
         Input input = new Input();
         input.setRegister(register);
@@ -110,22 +112,23 @@ public class InputService {
         input.setYear(upsertInputDto.getYear());
         input.setDateTime(Instant.parse(upsertInputDto.getDateTime()));
 
-        List<OperationLine> operationLines = new ArrayList<>();
-        for (UpsertOperationLineDto upsertOperationLineDto : upsertInputDto.getOperationLines()) {
+        List<InputOperationLine> inputOperationLines = new ArrayList<>();
+        for (UpsertInputOperationLineDto upsertOperationLineDto : upsertInputDto.getInputOperationLines()) {
             Article article = articleRepository.findById(upsertOperationLineDto.getArticleId())
                     .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Article not found"));
 
-            OperationLine operationLine = new OperationLine();
-            operationLine.setOperation(input);
-            operationLine.setArticle(article);
-            operationLine.setQuantity(upsertOperationLineDto.getQuantity());
-            operationLine.setNightlyAmount(upsertOperationLineDto.getNightlyAmount());
-            operationLine.setSubTotalNightlyAmount(operationLine.getNightlyAmount() * operationLine.getQuantity());
-            operationLine.setTransportFee(upsertOperationLineDto.getTransportFee());
+            InputOperationLine inputOperationLine = new InputOperationLine();
+            inputOperationLine.setInput(input);
+            inputOperationLine.setArticle(article);
+            inputOperationLine.setQuantity(upsertOperationLineDto.getQuantity());
+            inputOperationLine.setRemainingQuantity(inputOperationLine.getQuantity());
+            inputOperationLine.setNightlyAmount(upsertOperationLineDto.getNightlyAmount());
+            inputOperationLine.setSubTotalNightlyAmount(inputOperationLine.getNightlyAmount() * inputOperationLine.getQuantity());
+            inputOperationLine.setTransportFee(upsertOperationLineDto.getTransportFee());
 
-            operationLines.add(operationLine);
+            inputOperationLines.add(inputOperationLine);
         }
-        input.setOperationLines(operationLines);
+        input.setInputOperationLines(inputOperationLines);
 
         return inputRepository.save(input);
     }
@@ -135,7 +138,8 @@ public class InputService {
         Input input = inputRepository.findById(inputId)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Input not found"));
 
-        if (operationRepository.existsByNumberAndYearAndIdNot(upsertInputDto.getNumber(), upsertInputDto.getYear(), inputId)) {
+        if (inputRepository.existsByNumberAndYearAndIdNot(upsertInputDto.getNumber(), upsertInputDto.getYear(), inputId)
+                || outputRepository.existsByNumberAndYear(upsertInputDto.getNumber(), upsertInputDto.getYear())) {
             throw new AppException(HttpStatus.CONFLICT, "Operation already exists!");
         }
 
@@ -163,7 +167,7 @@ public class InputService {
                     .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Source not found"));
         }
 
-        checkForDuplicateArticleIds(upsertInputDto.getOperationLines());
+        checkForDuplicateArticleIds(upsertInputDto.getInputOperationLines());
 
         input.setRegister(register);
         input.setSubRegister(subRegister);
@@ -174,24 +178,25 @@ public class InputService {
         input.setYear(upsertInputDto.getYear());
         input.setDateTime(Instant.parse(upsertInputDto.getDateTime()));
 
-        for (OperationLine operationLine : input.getOperationLines()) {
-            for (UpsertOperationLineDto upsertOperationLineDto: upsertInputDto.getOperationLines()) {
-                if (Objects.equals(operationLine.getArticle().getId(), upsertOperationLineDto.getArticleId())) {
-                    operationLine.setQuantity(upsertOperationLineDto.getQuantity());
-                    operationLine.setNightlyAmount(upsertOperationLineDto.getNightlyAmount());
-                    operationLine.setSubTotalNightlyAmount(operationLine.getNightlyAmount() * operationLine.getQuantity());
-                    operationLine.setTransportFee(upsertOperationLineDto.getTransportFee());
+        for (InputOperationLine inputOperationLine : input.getInputOperationLines()) {
+            for (UpsertInputOperationLineDto upsertOperationLineDto: upsertInputDto.getInputOperationLines()) {
+                if (Objects.equals(inputOperationLine.getArticle().getId(), upsertOperationLineDto.getArticleId())) {
+                    inputOperationLine.setQuantity(upsertOperationLineDto.getQuantity());
+                    inputOperationLine.setRemainingQuantity(inputOperationLine.getQuantity());
+                    inputOperationLine.setNightlyAmount(upsertOperationLineDto.getNightlyAmount());
+                    inputOperationLine.setSubTotalNightlyAmount(inputOperationLine.getNightlyAmount() * inputOperationLine.getQuantity());
+                    inputOperationLine.setTransportFee(upsertOperationLineDto.getTransportFee());
                 }
             }
         }
 
-        Iterator<OperationLine> iter = input.getOperationLines().iterator();
+        Iterator<InputOperationLine> iter = input.getInputOperationLines().iterator();
         while (iter.hasNext()) {
-            OperationLine operationLine = iter.next();
+            InputOperationLine inputOperationLine = iter.next();
 
             boolean existsInDto = false;
-            for (UpsertOperationLineDto upsertOperationLineDto : upsertInputDto.getOperationLines()) {
-                if (Objects.equals(operationLine.getArticle().getId(), upsertOperationLineDto.getArticleId())) {
+            for (UpsertOperationLineDto upsertOperationLineDto : upsertInputDto.getInputOperationLines()) {
+                if (Objects.equals(inputOperationLine.getArticle().getId(), upsertOperationLineDto.getArticleId())) {
                     existsInDto = true;
                     break;
                 }
@@ -200,27 +205,28 @@ public class InputService {
                 iter.remove();
         }
 
-        for (UpsertOperationLineDto upsertOperationLineDto: upsertInputDto.getOperationLines()) {
+        for (UpsertInputOperationLineDto upsertInputOperationLineDto: upsertInputDto.getInputOperationLines()) {
             boolean existsInDb = false;
-            for (OperationLine operationLine : input.getOperationLines()) {
-                if (Objects.equals(upsertOperationLineDto.getArticleId(), operationLine.getArticle().getId())) {
+            for (InputOperationLine inputOperationLine : input.getInputOperationLines()) {
+                if (Objects.equals(upsertInputOperationLineDto.getArticleId(), inputOperationLine.getArticle().getId())) {
                     existsInDb = true;
                     break;
                 }
             }
             if (!existsInDb) {
-                Article article = articleRepository.findById(upsertOperationLineDto.getArticleId())
+                Article article = articleRepository.findById(upsertInputOperationLineDto.getArticleId())
                         .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Article not found"));
 
-                OperationLine operationLine = new OperationLine();
-                operationLine.setOperation(input);
-                operationLine.setArticle(article);
-                operationLine.setQuantity(upsertOperationLineDto.getQuantity());
-                operationLine.setNightlyAmount(upsertOperationLineDto.getNightlyAmount());
-                operationLine.setSubTotalNightlyAmount(operationLine.getNightlyAmount() * operationLine.getQuantity());
-                operationLine.setTransportFee(upsertOperationLineDto.getTransportFee());
+                InputOperationLine inputOperationLine = new InputOperationLine();
+                inputOperationLine.setInput(input);
+                inputOperationLine.setArticle(article);
+                inputOperationLine.setQuantity(upsertInputOperationLineDto.getQuantity());
+                inputOperationLine.setRemainingQuantity(inputOperationLine.getQuantity());
+                inputOperationLine.setNightlyAmount(upsertInputOperationLineDto.getNightlyAmount());
+                inputOperationLine.setSubTotalNightlyAmount(inputOperationLine.getNightlyAmount() * inputOperationLine.getQuantity());
+                inputOperationLine.setTransportFee(upsertInputOperationLineDto.getTransportFee());
 
-                input.getOperationLines().add(operationLine);
+                input.getInputOperationLines().add(inputOperationLine);
             }
         }
 
@@ -234,7 +240,7 @@ public class InputService {
         inputRepository.delete(input);
     }
 
-    public static void checkForDuplicateArticleIds(List<UpsertOperationLineDto> upsertOperationLines) {
+    public static <T extends UpsertOperationLineDto> void checkForDuplicateArticleIds(List<T> upsertOperationLines) {
         Set<Long> idSet = new HashSet<>();
 
         for (UpsertOperationLineDto upsertOperationLineDto : upsertOperationLines) {

@@ -25,6 +25,6 @@ public class UpsertInputDto extends UpsertOperationDto {
     @NotNull(message = "Source id should not be null")
     private Long sourceId;
 
-    @NotEmpty(message = "Operation line list should not be null or empty")
-    private List<@Valid UpsertOperationLineDto> operationLines;
+    @NotEmpty(message = "Input operation line list should not be null or empty")
+    private List<@Valid UpsertInputOperationLineDto> inputOperationLines;
 }

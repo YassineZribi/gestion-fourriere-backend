@@ -7,5 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface InputRepository extends JpaRepository<Input, Long>, JpaSpecificationExecutor<Input> {
+    Boolean existsByNumberAndYear(Long number, Integer year);
 
+    Boolean existsByNumberAndYearAndIdNot(Long number, Integer year, Long id);
 }

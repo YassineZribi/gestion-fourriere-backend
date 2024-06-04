@@ -1,42 +1,39 @@
 package com.yz.pferestapi.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "operation_lines")
-public class OperationLine {
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public abstract class OperationLine {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "operation_id")
-    private Operation operation;
+    @Column(nullable = false)
+    private Double quantity;
 
     @ManyToOne
     @JoinColumn(name = "article_id")
     private Article article;
 
-    @Column(nullable = false)
-    private Double quantity;
+    @CreationTimestamp
+    @Column(updatable = false, name = "created_at")
+    private Date createdAt;
 
-    @Column(nullable = false)
-    private Double nightlyAmount;
-
-    @Column(nullable = false)
-    private Double subTotalNightlyAmount;
-
-    @Column(nullable = false)
-    private Double transportFee; // frais de transport
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private Date updatedAt;
 
 }

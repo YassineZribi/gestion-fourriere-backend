@@ -17,10 +17,4 @@ public class UpsertOperationLineDto {
 
     @NotNull(message = "Quantity should not be null")
     private Double quantity;
-
-    @NotNull(message = "Nightly amount should not be null")
-    private Double nightlyAmount;
-
-    @NotNull(message = "Transport fee should not be null")
-    private Double transportFee;
 }
