@@ -24,6 +24,8 @@ public class InputOperationLine extends OperationLine {
     @Column(nullable = false)
     private Double remainingQuantity;
 
+    private String photoPath;
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "input_operation_id")

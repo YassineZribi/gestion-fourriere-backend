@@ -4,13 +4,15 @@ import com.yz.pferestapi.dto.InputCriteriaRequest;
 import com.yz.pferestapi.dto.UpsertInputDto;
 import com.yz.pferestapi.entity.Input;
 import com.yz.pferestapi.service.InputService;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RequestMapping("/operations/inputs")
 @RestController
@@ -39,23 +41,25 @@ public class InputController {
         return ResponseEntity.ok(inputs);
     }
 
-    @PostMapping
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<Input> createInput(@Validated @RequestBody UpsertInputDto upsertInputDto) {
+    public ResponseEntity<Input> createInput(@Validated @ModelAttribute UpsertInputDto upsertInputDto) throws IOException {
+        System.out.println("upsertInputDto.getSourceId() = " + upsertInputDto.getSourceId());
         Input createdInput = inputService.createInput(upsertInputDto);
         return new ResponseEntity<>(createdInput, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping(value = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<Input> updateInput(@Validated @RequestBody UpsertInputDto upsertInputDto, @PathVariable Long id) {
+    public ResponseEntity<Input> updateInput(@Validated @ModelAttribute UpsertInputDto upsertInputDto, @PathVariable Long id) throws IOException {
+        System.out.println("upsertInputDto.getSourceId() = " + upsertInputDto.getSourceId());
         Input updatedInput = inputService.updateInput(upsertInputDto, id);
         return ResponseEntity.ok(updatedInput);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<?> deleteInput(@PathVariable Long id) {
+    public ResponseEntity<?> deleteInput(@PathVariable Long id) throws IOException {
         inputService.deleteInput(id);
         return ResponseEntity.noContent().build();
     }

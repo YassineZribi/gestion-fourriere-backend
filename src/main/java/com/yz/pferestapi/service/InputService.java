@@ -18,12 +18,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class InputService {
+    private static final String INPUT_LINES_PHOTOS_SUB_FOLDER_NAME = "input-lines-photos";
+    private final FileService fileService;
     private final InputRepository inputRepository;
     private final OutputRepository outputRepository;
     private final RegisterRepository registerRepository;
@@ -70,7 +73,7 @@ public class InputService {
     }
 
     @Transactional
-    public Input createInput(UpsertInputDto upsertInputDto) {
+    public Input createInput(UpsertInputDto upsertInputDto) throws IOException {
         if (inputRepository.existsByNumberAndYear(upsertInputDto.getNumber(), upsertInputDto.getYear())
                 || outputRepository.existsByNumberAndYear(upsertInputDto.getNumber(), upsertInputDto.getYear())) {
             throw new AppException(HttpStatus.CONFLICT, "Operation already exists!");
@@ -126,6 +129,11 @@ public class InputService {
             inputOperationLine.setSubTotalNightlyAmount(inputOperationLine.getNightlyAmount() * inputOperationLine.getQuantity());
             inputOperationLine.setTransportFee(upsertOperationLineDto.getTransportFee());
 
+            if (upsertOperationLineDto.getPhotoFile() != null && !upsertOperationLineDto.getPhotoFile().isEmpty()) {
+                String photoPath = fileService.uploadFile(upsertOperationLineDto.getPhotoFile(), INPUT_LINES_PHOTOS_SUB_FOLDER_NAME);
+                inputOperationLine.setPhotoPath(photoPath);
+            }
+
             inputOperationLines.add(inputOperationLine);
         }
         input.setInputOperationLines(inputOperationLines);
@@ -134,7 +142,7 @@ public class InputService {
     }
 
     @Transactional
-    public Input updateInput(UpsertInputDto upsertInputDto, Long inputId) {
+    public Input updateInput(UpsertInputDto upsertInputDto, Long inputId) throws IOException {
         Input input = inputRepository.findById(inputId)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Input not found"));
 
@@ -178,6 +186,8 @@ public class InputService {
         input.setYear(upsertInputDto.getYear());
         input.setDateTime(Instant.parse(upsertInputDto.getDateTime()));
 
+        // case: input operation line exists in dto and db
+        // -> update db
         for (InputOperationLine inputOperationLine : input.getInputOperationLines()) {
             for (UpsertInputOperationLineDto upsertOperationLineDto: upsertInputDto.getInputOperationLines()) {
                 if (Objects.equals(inputOperationLine.getArticle().getId(), upsertOperationLineDto.getArticleId())) {
@@ -186,10 +196,23 @@ public class InputService {
                     inputOperationLine.setNightlyAmount(upsertOperationLineDto.getNightlyAmount());
                     inputOperationLine.setSubTotalNightlyAmount(inputOperationLine.getNightlyAmount() * inputOperationLine.getQuantity());
                     inputOperationLine.setTransportFee(upsertOperationLineDto.getTransportFee());
+
+                    if (upsertOperationLineDto.getPhotoFile() != null && !upsertOperationLineDto.getPhotoFile().isEmpty()) {
+                        String photoPath = fileService.uploadFile(upsertOperationLineDto.getPhotoFile(), INPUT_LINES_PHOTOS_SUB_FOLDER_NAME);
+
+                        String oldPhotoPath = inputOperationLine.getPhotoPath();
+                        if (oldPhotoPath != null && !oldPhotoPath.isEmpty()) {
+                            fileService.deleteFile(oldPhotoPath);
+                        }
+
+                        inputOperationLine.setPhotoPath(photoPath);
+                    }
                 }
             }
         }
 
+        // case: input operation line exists in db but not in dto
+        // -> remove it from db
         Iterator<InputOperationLine> iter = input.getInputOperationLines().iterator();
         while (iter.hasNext()) {
             InputOperationLine inputOperationLine = iter.next();
@@ -201,10 +224,18 @@ public class InputService {
                     break;
                 }
             }
-            if (!existsInDto)
+            if (!existsInDto) {
                 iter.remove();
+
+                String oldPhotoPath = inputOperationLine.getPhotoPath();
+                if (oldPhotoPath != null && !oldPhotoPath.isEmpty()) {
+                    fileService.deleteFile(oldPhotoPath);
+                }
+            }
         }
 
+        // case: input operation line exists in dto but not in db
+        // -> add it to db
         for (UpsertInputOperationLineDto upsertInputOperationLineDto: upsertInputDto.getInputOperationLines()) {
             boolean existsInDb = false;
             for (InputOperationLine inputOperationLine : input.getInputOperationLines()) {
@@ -226,6 +257,11 @@ public class InputService {
                 inputOperationLine.setSubTotalNightlyAmount(inputOperationLine.getNightlyAmount() * inputOperationLine.getQuantity());
                 inputOperationLine.setTransportFee(upsertInputOperationLineDto.getTransportFee());
 
+                if (upsertInputOperationLineDto.getPhotoFile() != null && !upsertInputOperationLineDto.getPhotoFile().isEmpty()) {
+                    String photoPath = fileService.uploadFile(upsertInputOperationLineDto.getPhotoFile(), INPUT_LINES_PHOTOS_SUB_FOLDER_NAME);
+                    inputOperationLine.setPhotoPath(photoPath);
+                }
+
                 input.getInputOperationLines().add(inputOperationLine);
             }
         }
@@ -233,11 +269,18 @@ public class InputService {
         return inputRepository.save(input);
     }
 
-    public void deleteInput(Long id) {
+    public void deleteInput(Long id) throws IOException {
         Input input = inputRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Input not found"));
 
         inputRepository.delete(input);
+
+        for (InputOperationLine inputOperationLine: input.getInputOperationLines()) {
+            String oldPhotoPath = inputOperationLine.getPhotoPath();
+            if (oldPhotoPath != null && !oldPhotoPath.isEmpty()) {
+                fileService.deleteFile(oldPhotoPath);
+            }
+        }
     }
 
     public static <T extends UpsertOperationLineDto> void checkForDuplicateArticleIds(List<T> upsertOperationLines) {
