@@ -15,7 +15,7 @@ import java.util.List;
 @Table(name = "input_operations")
 public class Input extends Operation {
     @Enumerated(EnumType.STRING)
-    private InputStatus status = InputStatus.FULLY_IN;
+    private ProcessingStatus status = ProcessingStatus.FULLY_IN;
 
     @ManyToOne
     @JoinColumn(name = "register_id")
