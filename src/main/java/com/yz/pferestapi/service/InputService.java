@@ -212,6 +212,12 @@ public class InputService {
                         }
 
                         inputOperationLine.setPhotoPath(photoPath);
+                    } else if (upsertOperationLineDto.getDeletePhotoFileIfExists()) {
+                        String oldPhotoPath = inputOperationLine.getPhotoPath();
+                        if (oldPhotoPath != null && !oldPhotoPath.isEmpty()) {
+                            fileService.deleteFile(oldPhotoPath);
+                        }
+                        inputOperationLine.setPhotoPath(null);
                     }
                 }
             }

@@ -24,4 +24,6 @@ public class UpsertInputOperationLineDto extends UpsertOperationLineDto {
 
     //@NotNull(message = "Photo file should not be null")
     MultipartFile photoFile;
+
+    Boolean deletePhotoFileIfExists = false;
 }
