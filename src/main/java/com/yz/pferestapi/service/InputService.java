@@ -128,6 +128,9 @@ public class InputService {
             inputOperationLine.setNightlyAmount(upsertOperationLineDto.getNightlyAmount());
             inputOperationLine.setSubTotalNightlyAmount(inputOperationLine.getNightlyAmount() * inputOperationLine.getQuantity());
             inputOperationLine.setTransportFee(upsertOperationLineDto.getTransportFee());
+            inputOperationLine.setDescription(upsertOperationLineDto.getDescription());
+            inputOperationLine.setObservation(upsertOperationLineDto.getObservation());
+            inputOperationLine.setNote(upsertOperationLineDto.getNote());
 
             if (upsertOperationLineDto.getPhotoFile() != null && !upsertOperationLineDto.getPhotoFile().isEmpty()) {
                 String photoPath = fileService.uploadFile(upsertOperationLineDto.getPhotoFile(), INPUT_LINES_PHOTOS_SUB_FOLDER_NAME);
@@ -196,6 +199,9 @@ public class InputService {
                     inputOperationLine.setNightlyAmount(upsertOperationLineDto.getNightlyAmount());
                     inputOperationLine.setSubTotalNightlyAmount(inputOperationLine.getNightlyAmount() * inputOperationLine.getQuantity());
                     inputOperationLine.setTransportFee(upsertOperationLineDto.getTransportFee());
+                    inputOperationLine.setDescription(upsertOperationLineDto.getDescription());
+                    inputOperationLine.setObservation(upsertOperationLineDto.getObservation());
+                    inputOperationLine.setNote(upsertOperationLineDto.getNote());
 
                     if (upsertOperationLineDto.getPhotoFile() != null && !upsertOperationLineDto.getPhotoFile().isEmpty()) {
                         String photoPath = fileService.uploadFile(upsertOperationLineDto.getPhotoFile(), INPUT_LINES_PHOTOS_SUB_FOLDER_NAME);
@@ -256,6 +262,9 @@ public class InputService {
                 inputOperationLine.setNightlyAmount(upsertInputOperationLineDto.getNightlyAmount());
                 inputOperationLine.setSubTotalNightlyAmount(inputOperationLine.getNightlyAmount() * inputOperationLine.getQuantity());
                 inputOperationLine.setTransportFee(upsertInputOperationLineDto.getTransportFee());
+                inputOperationLine.setDescription(upsertInputOperationLineDto.getDescription());
+                inputOperationLine.setObservation(upsertInputOperationLineDto.getObservation());
+                inputOperationLine.setNote(upsertInputOperationLineDto.getNote());
 
                 if (upsertInputOperationLineDto.getPhotoFile() != null && !upsertInputOperationLineDto.getPhotoFile().isEmpty()) {
                     String photoPath = fileService.uploadFile(upsertInputOperationLineDto.getPhotoFile(), INPUT_LINES_PHOTOS_SUB_FOLDER_NAME);

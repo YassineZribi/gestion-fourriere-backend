@@ -24,6 +24,19 @@ public class InputOperationLine extends OperationLine {
     @Column(nullable = false)
     private Double remainingQuantity;
 
+    @Enumerated(EnumType.STRING)
+    private ProcessingStatus status = ProcessingStatus.FULLY_IN;
+
+    @Column(columnDefinition = "boolean default false")
+    private boolean fullyOut = false;
+
+    @Column(nullable = false)
+    private String description;
+
+    private String observation;
+
+    private String note; // remarque
+
     private String photoPath;
 
     @JsonIgnore
