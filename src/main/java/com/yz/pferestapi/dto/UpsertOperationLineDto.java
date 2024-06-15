@@ -1,5 +1,6 @@
 package com.yz.pferestapi.dto;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,5 +17,6 @@ public class UpsertOperationLineDto {
     private Long articleId;
 
     @NotNull(message = "Quantity should not be null")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Quantity must be greater than 0")
     private Double quantity;
 }

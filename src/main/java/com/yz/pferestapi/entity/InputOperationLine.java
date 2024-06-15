@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -43,4 +46,8 @@ public class InputOperationLine extends OperationLine {
     @ManyToOne
     @JoinColumn(name = "input_operation_id")
     private Input input;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "inputOperationLine", fetch = FetchType.EAGER)
+    private List<OutputOperationLine> outputOperationLines = new ArrayList<>();
 }

@@ -2,6 +2,7 @@ package com.yz.pferestapi.specification;
 
 import com.yz.pferestapi.entity.*;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
 
 public class InputSpecifications {
@@ -34,6 +35,16 @@ public class InputSpecifications {
         return (root, query, criteriaBuilder) -> {
             Join<Input, Source> sourceJoin = root.join("source");
             return criteriaBuilder.equal(sourceJoin.get("id"), sourceId);
+        };
+    }
+
+    public static Specification<Input> descriptionContains(String description) {
+        return (root, query, criteriaBuilder) -> {
+            Join<Input, InputOperationLine> inputOperationLines = root.join("inputOperationLines", JoinType.INNER);
+            return criteriaBuilder.like(
+                    criteriaBuilder.lower(inputOperationLines.get("description")),
+                    "%" + description.trim().toLowerCase() + "%"
+            );
         };
     }
 }

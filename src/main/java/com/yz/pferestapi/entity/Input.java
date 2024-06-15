@@ -1,5 +1,6 @@
 package com.yz.pferestapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,6 +37,7 @@ public class Input extends Operation {
     @OneToMany(mappedBy = "input", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     List<InputOperationLine> inputOperationLines;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "input", fetch = FetchType.EAGER)
     private List<Output> outputs = new ArrayList<>();
 }

@@ -1,6 +1,7 @@
 package com.yz.pferestapi.controller;
 
 import com.yz.pferestapi.dto.InputCriteriaRequest;
+import com.yz.pferestapi.dto.UpdateInputOwnerDto;
 import com.yz.pferestapi.dto.UpsertInputDto;
 import com.yz.pferestapi.entity.Input;
 import com.yz.pferestapi.service.InputService;
@@ -54,6 +55,13 @@ public class InputController {
     public ResponseEntity<Input> updateInput(@Validated @ModelAttribute UpsertInputDto upsertInputDto, @PathVariable Long id) throws IOException {
         System.out.println("upsertInputDto.getSourceId() = " + upsertInputDto.getSourceId());
         Input updatedInput = inputService.updateInput(upsertInputDto, id);
+        return ResponseEntity.ok(updatedInput);
+    }
+
+    @PatchMapping("/{id}/owner")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    public ResponseEntity<Input> updateInputOwner(@Validated @RequestBody UpdateInputOwnerDto updateInputOwnerDto, @PathVariable("id") Long inputId) throws IOException {
+        Input updatedInput = inputService.updateInputOwner(updateInputOwnerDto, inputId);
         return ResponseEntity.ok(updatedInput);
     }
 

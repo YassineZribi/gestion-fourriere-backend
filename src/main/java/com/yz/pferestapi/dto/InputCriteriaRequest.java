@@ -13,4 +13,6 @@ public class InputCriteriaRequest extends OperationCriteriaRequest {
     private Long subRegisterId;
     private Long ownerId;
     private Long sourceId;
+
+    private String description; // input operation line description
 }

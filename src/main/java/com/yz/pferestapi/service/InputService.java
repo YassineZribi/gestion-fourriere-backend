@@ -1,9 +1,6 @@
 package com.yz.pferestapi.service;
 
-import com.yz.pferestapi.dto.InputCriteriaRequest;
-import com.yz.pferestapi.dto.UpsertInputDto;
-import com.yz.pferestapi.dto.UpsertInputOperationLineDto;
-import com.yz.pferestapi.dto.UpsertOperationLineDto;
+import com.yz.pferestapi.dto.*;
 import com.yz.pferestapi.entity.*;
 import com.yz.pferestapi.exception.AppException;
 import com.yz.pferestapi.repository.*;
@@ -63,6 +60,10 @@ public class InputService {
 
         if (inputCriteria.getSourceId() != null) {
             spec = spec.and(InputSpecifications.hasSource(inputCriteria.getSourceId()));
+        }
+
+        if (inputCriteria.getDescription() != null) {
+            spec = spec.and(InputSpecifications.descriptionContains(inputCriteria.getDescription()));
         }
 
         Sort sort = CriteriaRequestUtil.buildSortCriteria(inputCriteria);
@@ -296,6 +297,18 @@ public class InputService {
                 fileService.deleteFile(oldPhotoPath);
             }
         }
+    }
+
+    public Input updateInputOwner(UpdateInputOwnerDto updateInputOwnerDto, Long inputId) {
+        Input input = inputRepository.findById(inputId)
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Input not found"));
+
+        Owner newInputOwner = ownerRepository.findById(updateInputOwnerDto.getNewOwnerId())
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Owner not found"));
+
+        input.setOwner(newInputOwner);
+
+        return inputRepository.save(input);
     }
 
     public static <T extends UpsertOperationLineDto> void checkForDuplicateArticleIds(List<T> upsertOperationLines) {
