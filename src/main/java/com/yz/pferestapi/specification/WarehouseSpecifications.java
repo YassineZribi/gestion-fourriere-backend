@@ -1,6 +1,6 @@
 package com.yz.pferestapi.specification;
 
-import com.yz.pferestapi.entity.Employee;
+import com.yz.pferestapi.entity.User;
 import com.yz.pferestapi.entity.Warehouse;
 import com.yz.pferestapi.util.NumberUtil;
 import jakarta.persistence.criteria.Join;
@@ -49,8 +49,8 @@ public class WarehouseSpecifications {
 
     public static Specification<Warehouse> hasManager(Long managerId) {
         return (root, query, criteriaBuilder) -> {
-            Join<Warehouse, Employee> roleJoin = root.join("manager");
-            return criteriaBuilder.equal(roleJoin.get("id"), managerId);
+            Join<Warehouse, User> managerJoin = root.join("manager");
+            return criteriaBuilder.equal(managerJoin.get("id"), managerId);
         };
     }
 }

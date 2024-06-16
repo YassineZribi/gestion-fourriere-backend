@@ -10,16 +10,18 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmployeeDto {
+public class UserDto {
     private Long id;
     private String firstName;
     private String lastName;
+    private String email;
+    private String phoneNumber;
     private String position;
     private String photoPath;
-    private List<EmployeeDto> subordinates = new ArrayList<>();
+    private List<UserDto> subordinates = new ArrayList<>();
 
-    public void addSubordinate(EmployeeDto subordinate) {
-       // if (subordinates == null) subordinates = new ArrayList<>();
+    public void addSubordinate(UserDto subordinate) {
+        // if (subordinates == null) subordinates = new ArrayList<>();
         subordinates.add(subordinate);
     }
 }

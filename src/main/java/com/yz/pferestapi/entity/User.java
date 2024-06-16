@@ -1,5 +1,6 @@
 package com.yz.pferestapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -46,6 +47,18 @@ public class User implements UserDetails {
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id")
     private Role role;
+
+    @Column(nullable = false)
+    private String position; // nom du poste
+
+    @ManyToOne
+    @JoinColumn(name = "manager_id", referencedColumnName = "id")
+    private User manager;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "institution_id")
+    private Institution institution;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")

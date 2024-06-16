@@ -2,12 +2,10 @@ package com.yz.pferestapi.service;
 
 import com.yz.pferestapi.dto.UpsertWarehouseDto;
 import com.yz.pferestapi.dto.WarehouseCriteriaRequest;
-import com.yz.pferestapi.entity.Employee;
 import com.yz.pferestapi.entity.User;
 import com.yz.pferestapi.entity.Warehouse;
 import com.yz.pferestapi.exception.AppException;
 import com.yz.pferestapi.mapper.WarehouseMapper;
-import com.yz.pferestapi.repository.EmployeeRepository;
 import com.yz.pferestapi.repository.UserRepository;
 import com.yz.pferestapi.repository.WarehouseRepository;
 import com.yz.pferestapi.specification.WarehouseSpecifications;
@@ -28,7 +26,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class WarehouseService {
-    private final EmployeeRepository employeeRepository;
     private final WarehouseRepository warehouseRepository;
     private final UserRepository userRepository;
 
@@ -76,9 +73,9 @@ public class WarehouseService {
         User createdByUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        Employee manager = null;
+        User manager = null;
         if (upsertWarehouseDto.getManagerId() != null) {
-            manager = employeeRepository.findById(upsertWarehouseDto.getManagerId())
+            manager = userRepository.findById(upsertWarehouseDto.getManagerId())
                     .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Employee (Manager) not found"));
         }
 
@@ -97,9 +94,9 @@ public class WarehouseService {
         Warehouse warehouse = warehouseRepository.findByDeletedIsFalseAndId(warehouseId)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Warehouse not found"));
 
-        Employee manager = null;
+        User manager = null;
         if (upsertWarehouseDto.getManagerId() != null) {
-            manager = employeeRepository.findById(upsertWarehouseDto.getManagerId())
+            manager = userRepository.findById(upsertWarehouseDto.getManagerId())
                     .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Employee (Manager) not found"));
         }
 

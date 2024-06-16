@@ -39,10 +39,10 @@ public class Institution {
 
     @OneToOne
     @JoinColumn(name = "chief_executive_id", referencedColumnName = "id")
-    private Employee chiefExecutive;
+    private User chiefExecutive;
 
     @OneToMany(mappedBy = "institution", fetch = FetchType.EAGER)
-    private List<Employee> employees = new ArrayList<>();
+    private List<User> employees = new ArrayList<>();
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")

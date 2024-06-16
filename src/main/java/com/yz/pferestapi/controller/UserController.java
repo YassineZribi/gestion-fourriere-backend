@@ -2,6 +2,7 @@ package com.yz.pferestapi.controller;
 
 import com.yz.pferestapi.dto.UserCriteriaRequest;
 import com.yz.pferestapi.dto.UpsertUserDto;
+import com.yz.pferestapi.dto.UserDto;
 import com.yz.pferestapi.entity.User;
 import com.yz.pferestapi.service.UserService;
 import jakarta.validation.Valid;
@@ -12,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @RequestMapping("/users")
 @RestController
@@ -22,10 +24,38 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping("/search")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_MANAGER')")
+    public ResponseEntity<List<User>> getAllUsersByFullName(@RequestParam(required = false, defaultValue = "") String fullName) {
+        List<User> users = userService.findUsersByFullName(fullName);
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    public ResponseEntity<User> getUser(@PathVariable Long id) {
+        System.out.println("userId = " + id);
+        User employee = userService.getUser(id);
+        return ResponseEntity.ok(employee);
+    }
+
+    @GetMapping("/{id}/subordinates")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    public ResponseEntity<UserDto> getEmployeeWithRecursiveSubordinates(@PathVariable Long id) {
+        UserDto employees = userService.getEmployeeWithRecursiveSubordinates(id);
+        return ResponseEntity.ok(employees);
+    }
+
+    @GetMapping("/chief-executive")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    public ResponseEntity<UserDto> getChiefExecutiveWithRecursiveSubordinates() {
+        UserDto employees = userService.getChiefExecutiveWithRecursiveSubordinates();
+        return ResponseEntity.ok(employees);
+    }
+
     // In Spring Boot, when you don't specify @RequestParam or @RequestBody in a method parameter
     // of a controller, Spring Boot will treat the data as part of the request parameters by default.
     // http://example.com/api/users?param1=value1&param2=value2
-
     @GetMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_MANAGER')")
     public ResponseEntity<Page<User>> findUsersByCriteria(UserCriteriaRequest userCriteria) {

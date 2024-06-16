@@ -23,4 +23,9 @@ public class UpsertUserDto {
 
     @NotEmpty(message = "Role name should not be null or empty")
     private String roleName;
+
+    @NotEmpty(message = "Position should not be null or empty")
+    private String position;
+
+    private Long managerId;
 }

@@ -35,4 +35,26 @@ public class UserSpecifications {
             return criteriaBuilder.equal(criteriaBuilder.lower(roleJoin.get("name")), roleName.trim().toLowerCase());
         };
     }
+
+    public static Specification<User> fullNameContains(String search) {
+        System.out.println("search = " + search);
+        return (root, query, criteriaBuilder) -> {
+            String searchString = "%" + search.trim().toLowerCase() + "%";
+            return criteriaBuilder.or(
+                    criteriaBuilder.like(criteriaBuilder.lower(criteriaBuilder.concat(root.get("firstName"), criteriaBuilder.concat(" ", root.get("lastName")))), searchString),
+                    criteriaBuilder.like(criteriaBuilder.lower(criteriaBuilder.concat(root.get("lastName"), criteriaBuilder.concat(" ", root.get("firstName")))), searchString)
+            );
+        };
+    }
+
+    public static Specification<User> positionContains(String position) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.lower(root.get("position")), "%" + position.trim().toLowerCase() + "%");
+    }
+
+    public static Specification<User> hasManager(Long managerId) {
+        return (root, query, criteriaBuilder) -> {
+            Join<User, User> managerJoin = root.join("manager");
+            return criteriaBuilder.equal(managerJoin.get("id"), managerId);
+        };
+    }
 }

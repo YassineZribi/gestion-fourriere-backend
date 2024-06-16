@@ -9,8 +9,8 @@ public class RegisterMapper {
         return map(upsertRegisterDto, register);
     }
 
-    public static Register toEntity(UpsertRegisterDto upsertEmployeeDto, Register register) {
-        return map(upsertEmployeeDto, register);
+    public static Register toEntity(UpsertRegisterDto upsertRegisterDto, Register register) {
+        return map(upsertRegisterDto, register);
     }
 
     private static Register map(UpsertRegisterDto upsertRegisterDto, Register register) {

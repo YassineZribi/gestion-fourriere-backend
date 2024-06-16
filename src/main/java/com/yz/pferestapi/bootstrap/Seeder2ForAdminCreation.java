@@ -52,6 +52,7 @@ public class Seeder2ForAdminCreation implements ApplicationListener<ContextRefre
                 .phoneNumber("+21622585016")
                 .password(passwordEncoder.encode("1234"))
                 .role(optionalRole.get())
+                .position("Admin")
                 .build();
 
         userRepository.save(user);

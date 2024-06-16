@@ -38,7 +38,7 @@ public class Warehouse {
 
     @ManyToOne
     @JoinColumn(name = "manager_id")
-    private Employee manager; // Le responsable
+    private User manager; // Le responsable
 
     @ManyToOne
     @JoinColumn(name = "created_by_user_id")
