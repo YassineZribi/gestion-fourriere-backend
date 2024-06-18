@@ -1,7 +1,6 @@
 package com.yz.pferestapi.controller;
 
 import com.yz.pferestapi.dto.EmployeeCriteriaRequest;
-import com.yz.pferestapi.dto.EmployeeWithSubordinatesDto;
 import com.yz.pferestapi.dto.UpsertEmployeeDto;
 import com.yz.pferestapi.entity.Employee;
 import com.yz.pferestapi.service.EmployeeService;
@@ -38,20 +37,6 @@ public class EmployeeController {
         System.out.println("employeeId = " + id);
         Employee employee = employeeService.getEmployee(id);
         return ResponseEntity.ok(employee);
-    }
-
-    @GetMapping("/{id}/subordinates")
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<EmployeeWithSubordinatesDto> getEmployeeWithRecursiveSubordinates(@PathVariable Long id) {
-        EmployeeWithSubordinatesDto employees = employeeService.getEmployeeWithRecursiveSubordinates(id);
-        return ResponseEntity.ok(employees);
-    }
-
-    @GetMapping("/chief-executive")
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<EmployeeWithSubordinatesDto> getChiefExecutiveWithRecursiveSubordinates() {
-        EmployeeWithSubordinatesDto employees = employeeService.getChiefExecutiveWithRecursiveSubordinates();
-        return ResponseEntity.ok(employees);
     }
 
     // In Spring Boot, when you don't specify @RequestParam or @RequestBody in a method parameter

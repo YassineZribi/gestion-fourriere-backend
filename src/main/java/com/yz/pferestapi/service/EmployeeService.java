@@ -1,7 +1,6 @@
 package com.yz.pferestapi.service;
 
 import com.yz.pferestapi.dto.EmployeeCriteriaRequest;
-import com.yz.pferestapi.dto.EmployeeWithSubordinatesDto;
 import com.yz.pferestapi.dto.UpsertEmployeeDto;
 import com.yz.pferestapi.entity.*;
 import com.yz.pferestapi.exception.AppException;
@@ -68,36 +67,6 @@ public class EmployeeService {
     public List<Employee> findEmployeesByFullName(String search) {
         Specification<Employee> spec = UserService.findAllByFullName(search);
         return employeeRepository.findAll(spec);
-    }
-
-    public EmployeeWithSubordinatesDto getEmployeeWithRecursiveSubordinates(Long id) {
-        Employee manager = employeeRepository.findById(id)
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Employee (Manager) not found"));
-
-        EmployeeWithSubordinatesDto employeeWithSubordinatesDto = EmployeeMapper.toDto(manager);
-        buildSubordinates(employeeWithSubordinatesDto);
-        return employeeWithSubordinatesDto;
-    }
-
-    public EmployeeWithSubordinatesDto getChiefExecutiveWithRecursiveSubordinates() {
-        Institution institution = institutionRepository.findFirstByOrderByIdAsc()
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Institution not found"));
-        Employee chiefExecutive = institution.getChiefExecutive();
-        if (chiefExecutive == null)
-            throw new AppException(HttpStatus.NOT_FOUND, "The institution has not yet selected or appointed a Chief Executive Officer.");
-
-        EmployeeWithSubordinatesDto employeeWithSubordinatesDto = EmployeeMapper.toDto(chiefExecutive);
-        buildSubordinates(employeeWithSubordinatesDto);
-        return employeeWithSubordinatesDto;
-    }
-
-    private void buildSubordinates(EmployeeWithSubordinatesDto manager) {
-        List<Employee> subordinates = employeeRepository.findByManagerId(manager.getId());
-        for (Employee subordinate : subordinates) {
-            EmployeeWithSubordinatesDto subordinateDto = EmployeeMapper.toDto(subordinate);
-            buildSubordinates(subordinateDto);
-            manager.addSubordinate(subordinateDto);
-        }
     }
 
     public Employee createEmployee(UpsertEmployeeDto upsertEmployeeDto) {

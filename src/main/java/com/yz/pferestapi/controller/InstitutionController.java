@@ -1,5 +1,6 @@
 package com.yz.pferestapi.controller;
 
+import com.yz.pferestapi.dto.EmployeeWithSubordinatesDto;
 import com.yz.pferestapi.dto.SaveInstitutionDto;
 import com.yz.pferestapi.entity.Institution;
 import com.yz.pferestapi.service.InstitutionService;
@@ -34,5 +35,12 @@ public class InstitutionController {
                                                      @RequestPart(value = "media", required = false) MultipartFile logoFile) throws IOException {
         Institution institution = institutionService.saveInstitution(saveInstitutionDto, logoFile);
         return ResponseEntity.ok(institution);
+    }
+
+    @GetMapping("/organizational-chart")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    public ResponseEntity<EmployeeWithSubordinatesDto> getOrganizationalChart() {
+        EmployeeWithSubordinatesDto chiefExecutiveWithRecursiveSubordinates = institutionService.getOrganizationalChart();
+        return ResponseEntity.ok(chiefExecutiveWithRecursiveSubordinates);
     }
 }
