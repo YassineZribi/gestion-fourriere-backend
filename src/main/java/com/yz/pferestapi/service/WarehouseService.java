@@ -2,11 +2,11 @@ package com.yz.pferestapi.service;
 
 import com.yz.pferestapi.dto.UpsertWarehouseDto;
 import com.yz.pferestapi.dto.WarehouseCriteriaRequest;
-import com.yz.pferestapi.entity.User;
+import com.yz.pferestapi.entity.Employee;
 import com.yz.pferestapi.entity.Warehouse;
 import com.yz.pferestapi.exception.AppException;
 import com.yz.pferestapi.mapper.WarehouseMapper;
-import com.yz.pferestapi.repository.UserRepository;
+import com.yz.pferestapi.repository.EmployeeRepository;
 import com.yz.pferestapi.repository.WarehouseRepository;
 import com.yz.pferestapi.specification.WarehouseSpecifications;
 import com.yz.pferestapi.util.CriteriaRequestUtil;
@@ -27,7 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WarehouseService {
     private final WarehouseRepository warehouseRepository;
-    private final UserRepository userRepository;
+    private final EmployeeRepository employeeRepository;
 
     public List<Warehouse> getAllWarehouses() {
         return warehouseRepository.findAllByDeletedIsFalse();
@@ -70,45 +70,45 @@ public class WarehouseService {
 
     public Warehouse createWarehouse(UpsertWarehouseDto upsertWarehouseDto) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User createdByUser = userRepository.findByEmail(email)
+        Employee createdByEmployee = employeeRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        User manager = null;
+        Employee manager = null;
         if (upsertWarehouseDto.getManagerId() != null) {
-            manager = userRepository.findById(upsertWarehouseDto.getManagerId())
+            manager = employeeRepository.findById(upsertWarehouseDto.getManagerId())
                     .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Employee (Manager) not found"));
         }
 
         Warehouse warehouse = WarehouseMapper.toEntity(upsertWarehouseDto, manager);
 
-        warehouse.setCreatedByUser(createdByUser);
-        warehouse.setLastUpdatedByUser(createdByUser);
+        warehouse.setCreatedByEmployee(createdByEmployee);
+        warehouse.setLastUpdatedByEmployee(createdByEmployee);
         return warehouseRepository.save(warehouse);
     }
 
     public Warehouse updateWarehouse(UpsertWarehouseDto upsertWarehouseDto, Long warehouseId) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User updatedByUser = userRepository.findByEmail(email)
+        Employee updatedByEmployee = employeeRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         Warehouse warehouse = warehouseRepository.findByDeletedIsFalseAndId(warehouseId)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Warehouse not found"));
 
-        User manager = null;
+        Employee manager = null;
         if (upsertWarehouseDto.getManagerId() != null) {
-            manager = userRepository.findById(upsertWarehouseDto.getManagerId())
+            manager = employeeRepository.findById(upsertWarehouseDto.getManagerId())
                     .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Employee (Manager) not found"));
         }
 
         Warehouse mappedWarehouse = WarehouseMapper.toEntity(upsertWarehouseDto, manager, warehouse);
 
-        mappedWarehouse.setLastUpdatedByUser(updatedByUser);
+        mappedWarehouse.setLastUpdatedByEmployee(updatedByEmployee);
         return warehouseRepository.save(mappedWarehouse);
     }
 
     public void deleteWarehouse(Long id) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User deletedByUser = userRepository.findByEmail(email)
+        Employee deletedByEmployee = employeeRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         Warehouse warehouse = warehouseRepository.findByDeletedIsFalseAndId(id)
@@ -116,7 +116,7 @@ public class WarehouseService {
 
         warehouse.setDeleted(true);
 
-        warehouse.setDeletedByUser(deletedByUser);
+        warehouse.setDeletedByEmployee(deletedByEmployee);
         warehouseRepository.save(warehouse);
     }
 }

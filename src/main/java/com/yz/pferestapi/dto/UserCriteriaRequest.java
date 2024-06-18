@@ -15,6 +15,4 @@ public class UserCriteriaRequest extends CriteriaRequest {
     private String email;
     private String phoneNumber;
     private String roleName;
-    private String position;
-    private Long managerId;
 }

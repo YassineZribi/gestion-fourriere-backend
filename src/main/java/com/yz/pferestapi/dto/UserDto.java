@@ -16,12 +16,5 @@ public class UserDto {
     private String lastName;
     private String email;
     private String phoneNumber;
-    private String position;
     private String photoPath;
-    private List<UserDto> subordinates = new ArrayList<>();
-
-    public void addSubordinate(UserDto subordinate) {
-        // if (subordinates == null) subordinates = new ArrayList<>();
-        subordinates.add(subordinate);
-    }
 }

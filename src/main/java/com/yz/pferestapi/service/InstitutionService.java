@@ -1,11 +1,11 @@
 package com.yz.pferestapi.service;
 
 import com.yz.pferestapi.dto.SaveInstitutionDto;
+import com.yz.pferestapi.entity.Employee;
 import com.yz.pferestapi.entity.Institution;
-import com.yz.pferestapi.entity.User;
 import com.yz.pferestapi.exception.AppException;
+import com.yz.pferestapi.repository.EmployeeRepository;
 import com.yz.pferestapi.repository.InstitutionRepository;
-import com.yz.pferestapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import java.util.Optional;
 public class InstitutionService {
     private final InstitutionRepository institutionRepository;
     private final FileService fileService;
-    private final UserRepository userRepository;
+    private final EmployeeRepository employeeRepository;
 
     public Institution getInstitution() {
         return institutionRepository.findFirstByOrderByIdAsc()
@@ -27,9 +27,9 @@ public class InstitutionService {
     }
 
     public Institution saveInstitution(SaveInstitutionDto saveInstitutionDto, MultipartFile photoFile) throws IOException {
-        User employee = null;
+        Employee employee = null;
         if (saveInstitutionDto.getChiefExecutiveId() != null) {
-            employee = userRepository.findById(saveInstitutionDto.getChiefExecutiveId())
+            employee = employeeRepository.findById(saveInstitutionDto.getChiefExecutiveId())
                     .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Employee (Chief Executive) not found"));
         }
 

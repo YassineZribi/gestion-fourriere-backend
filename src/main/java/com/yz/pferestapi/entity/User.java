@@ -1,6 +1,5 @@
 package com.yz.pferestapi.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -15,12 +14,13 @@ import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @ToString
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.CHAR)
+@DiscriminatorValue("null")
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -47,18 +47,6 @@ public class User implements UserDetails {
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id")
     private Role role;
-
-    @Column(nullable = false)
-    private String position; // nom du poste
-
-    @ManyToOne
-    @JoinColumn(name = "manager_id", referencedColumnName = "id")
-    private User manager;
-
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "institution_id")
-    private Institution institution;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")

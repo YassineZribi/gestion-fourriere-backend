@@ -38,19 +38,19 @@ public class Warehouse {
 
     @ManyToOne
     @JoinColumn(name = "manager_id")
-    private User manager; // Le responsable
+    private Employee manager; // Le responsable
 
     @ManyToOne
-    @JoinColumn(name = "created_by_user_id")
-    private User createdByUser;
+    @JoinColumn(name = "created_by_employee_id")
+    private Employee createdByEmployee;
 
     @ManyToOne
-    @JoinColumn(name = "last_updated_by_user_id")
-    private User lastUpdatedByUser;
+    @JoinColumn(name = "last_updated_by_employee_id")
+    private Employee lastUpdatedByEmployee;
 
     @ManyToOne
-    @JoinColumn(name = "deleted_by_user_id")
-    private User deletedByUser;
+    @JoinColumn(name = "deleted_by_employee_id")
+    private Employee deletedByEmployee;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
