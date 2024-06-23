@@ -2,8 +2,10 @@ package com.yz.pferestapi.service;
 
 import com.yz.pferestapi.dto.ChangePasswordDto;
 import com.yz.pferestapi.dto.UpdateProfileDto;
+import com.yz.pferestapi.dto.UserDto;
 import com.yz.pferestapi.entity.User;
 import com.yz.pferestapi.exception.AppException;
+import com.yz.pferestapi.mapper.UserMapper;
 import com.yz.pferestapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,18 +24,22 @@ public class AccountService {
     private final FileService fileService;
     private final PasswordEncoder passwordEncoder;
 
-    public User getProfile() {
+    public UserDto getProfile() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByEmail(email)
+
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        return UserMapper.toDto(user);
     }
 
-    public User updateProfile(UpdateProfileDto updateProfileDto, MultipartFile photoFile) throws IOException {
-        User profile = userRepository.findByEmail(updateProfileDto.getEmail())
+    public UserDto updateProfile(UpdateProfileDto updateProfileDto) throws IOException {
+        String authenticatedUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User profile = userRepository.findByEmail(authenticatedUserEmail)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "User not found"));
 
-        if (photoFile != null && !photoFile.isEmpty()) {
-            String photoPath = fileService.uploadFile(photoFile, "photos");
+        if (updateProfileDto.getPhotoFile() != null && !updateProfileDto.getPhotoFile().isEmpty()) {
+            String photoPath = fileService.uploadFile(updateProfileDto.getPhotoFile(), "users-photos");
 
             String oldPhotoPath = profile.getPhotoPath();
             if (oldPhotoPath != null && !oldPhotoPath.isEmpty()) {
@@ -47,7 +53,8 @@ public class AccountService {
         profile.setLastName(updateProfileDto.getLastName());
         profile.setPhoneNumber(updateProfileDto.getPhoneNumber());
 
-        return userRepository.save(profile);
+        User updatedUser = userRepository.save(profile);
+        return UserMapper.toDto(updatedUser);
     }
 
     public void changePassword(ChangePasswordDto changePasswordDto) {

@@ -2,11 +2,13 @@ package com.yz.pferestapi.controller;
 
 import com.yz.pferestapi.dto.ChangePasswordDto;
 import com.yz.pferestapi.dto.UpdateProfileDto;
-import com.yz.pferestapi.entity.User;
+import com.yz.pferestapi.dto.UserDto;
 import com.yz.pferestapi.service.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,6 +16,7 @@ import java.io.IOException;
 
 @RequestMapping("/account")
 @RestController
+@PreAuthorize("isAuthenticated()")
 public class AccountController {
     private final AccountService accountService;
 
@@ -22,15 +25,14 @@ public class AccountController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<User> getProfile() {
-        User profile = accountService.getProfile();
+    public ResponseEntity<UserDto> getProfile() {
+        UserDto profile = accountService.getProfile();
         return ResponseEntity.ok(profile);
     }
 
     @PatchMapping(value = "/profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<User> updateProfile(@RequestPart("data") @Valid UpdateProfileDto updateProfileDto,
-                                              @RequestPart(value = "media", required = false) MultipartFile photoFile) throws IOException {
-        User profile = accountService.updateProfile(updateProfileDto, photoFile);
+    public ResponseEntity<UserDto> updateProfile(@Validated @ModelAttribute UpdateProfileDto updateProfileDto) throws IOException {
+        UserDto profile = accountService.updateProfile(updateProfileDto);
         return ResponseEntity.ok(profile);
     }
 
