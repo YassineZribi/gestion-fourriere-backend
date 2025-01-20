@@ -65,12 +65,12 @@ public class SourceService {
     }
 
     public Source updateSource(UpsertSourceDto upsertSourceDto, Long sourceId) {
-        Source source = sourceRepository.findById(sourceId)
-                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Source not found"));
-
         if (sourceRepository.existsByNameIgnoreCaseAndIdNot(upsertSourceDto.getName(), sourceId)) {
             throw new AppException(HttpStatus.CONFLICT, "Name already exists!");
         }
+
+        Source source = sourceRepository.findById(sourceId)
+                .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Source not found"));
 
         Source updatedSource = SourceMapper.toEntity(upsertSourceDto, source);
 
