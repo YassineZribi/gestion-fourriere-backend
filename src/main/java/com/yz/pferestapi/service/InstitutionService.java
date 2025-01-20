@@ -68,7 +68,7 @@ public class InstitutionService {
         if (chiefExecutive == null)
             throw new AppException(HttpStatus.NOT_FOUND, "The institution has not yet selected or appointed a Chief Executive Officer.");
 
-        EmployeeWithSubordinatesDto employeeWithSubordinatesDto = EmployeeMapper.toDto(chiefExecutive);
+        EmployeeWithSubordinatesDto employeeWithSubordinatesDto = EmployeeMapper.toEmployeeWithSubordinatesDto(chiefExecutive);
         buildSubordinates(employeeWithSubordinatesDto);
         return employeeWithSubordinatesDto;
     }
@@ -76,7 +76,7 @@ public class InstitutionService {
     private void buildSubordinates(EmployeeWithSubordinatesDto manager) {
         List<Employee> subordinates = employeeRepository.findByManagerId(manager.getId());
         for (Employee subordinate : subordinates) {
-            EmployeeWithSubordinatesDto subordinateDto = EmployeeMapper.toDto(subordinate);
+            EmployeeWithSubordinatesDto subordinateDto = EmployeeMapper.toEmployeeWithSubordinatesDto(subordinate);
             buildSubordinates(subordinateDto);
             manager.addSubordinate(subordinateDto);
         }
