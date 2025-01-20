@@ -4,13 +4,12 @@ import com.yz.pferestapi.dto.ArticleCriteriaRequest;
 import com.yz.pferestapi.dto.UpsertArticleDto;
 import com.yz.pferestapi.entity.Article;
 import com.yz.pferestapi.service.ArticleService;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -51,18 +50,17 @@ public class ArticleController {
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<Article> createArticle(@RequestPart("data") @Valid UpsertArticleDto upsertArticleDto,
-                                                             @RequestPart(value = "media", required = false) MultipartFile photoFile) throws IOException {
-        Article article = articleService.createArticle(upsertArticleDto, photoFile);
+    public ResponseEntity<Article> addArticle(@Validated @ModelAttribute UpsertArticleDto upsertArticleDto)
+            throws IOException {
+        Article article = articleService.createArticle(upsertArticleDto);
         return ResponseEntity.ok(article);
     }
 
     @PatchMapping(value="/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<Article> updateArticle(@RequestPart("data") @Valid UpsertArticleDto upsertArticleDto,
-                                                             @RequestPart(value = "media", required = false) MultipartFile photoFile,
-                                                             @PathVariable("id") Long articleId) throws IOException {
-        Article article = articleService.updateArticle(upsertArticleDto, articleId, photoFile);
+    public ResponseEntity<Article> updateArticle(@Validated @ModelAttribute UpsertArticleDto upsertArticleDto,
+                                                 @PathVariable("id") Long articleId) throws IOException {
+        Article article = articleService.updateArticle(upsertArticleDto, articleId);
         return ResponseEntity.ok(article);
     }
 

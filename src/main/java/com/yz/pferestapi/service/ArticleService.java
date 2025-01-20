@@ -17,7 +17,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -70,7 +69,7 @@ public class ArticleService {
         return articleRepository.findAll(spec, pageable);
     }
 
-    public Article createArticle(UpsertArticleDto upsertArticleDto, MultipartFile photoFile) throws IOException {
+    public Article createArticle(UpsertArticleDto upsertArticleDto) throws IOException {
         ArticleFamily articleFamily = null;
         if (upsertArticleDto.getArticleFamilyId() != null) {
             articleFamily = articleFamilyRepository.findById(upsertArticleDto.getArticleFamilyId())
@@ -79,15 +78,15 @@ public class ArticleService {
 
         Article article = ArticleMapper.toEntity(upsertArticleDto, articleFamily);
 
-        if (photoFile != null && !photoFile.isEmpty()) {
-            String photoPath = fileService.uploadFile(photoFile, ARTICLES_PHOTOS_SUB_FOLDER_NAME);
+        if (upsertArticleDto.getPhotoFile() != null && !upsertArticleDto.getPhotoFile().isEmpty()) {
+            String photoPath = fileService.uploadFile(upsertArticleDto.getPhotoFile(), ARTICLES_PHOTOS_SUB_FOLDER_NAME);
             article.setPhotoPath(photoPath);
         }
 
         return articleRepository.save(article);
     }
 
-    public Article updateArticle(UpsertArticleDto upsertArticleDto, Long articleId, MultipartFile photoFile) throws IOException {
+    public Article updateArticle(UpsertArticleDto upsertArticleDto, Long articleId) throws IOException {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Article not found"));
 
@@ -99,8 +98,8 @@ public class ArticleService {
 
         Article updatedArticle = ArticleMapper.toEntity(upsertArticleDto, articleFamily, article);
 
-        if (photoFile != null && !photoFile.isEmpty()) {
-            String photoPath = fileService.uploadFile(photoFile, ARTICLES_PHOTOS_SUB_FOLDER_NAME);
+        if (upsertArticleDto.getPhotoFile() != null && !upsertArticleDto.getPhotoFile().isEmpty()) {
+            String photoPath = fileService.uploadFile(upsertArticleDto.getPhotoFile(), ARTICLES_PHOTOS_SUB_FOLDER_NAME);
 
             String oldPhotoPath = article.getPhotoPath();
             if (oldPhotoPath != null && !oldPhotoPath.isEmpty()) {
