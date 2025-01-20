@@ -1,6 +1,7 @@
 package com.yz.pferestapi.service;
 
 import com.yz.pferestapi.dto.EmployeeCriteriaRequest;
+import com.yz.pferestapi.dto.EmployeeDto;
 import com.yz.pferestapi.dto.UpsertEmployeeDto;
 import com.yz.pferestapi.entity.*;
 import com.yz.pferestapi.exception.AppException;
@@ -31,6 +32,7 @@ public class EmployeeService {
     private final RoleRepository roleRepository;
     private final WarehouseRepository warehouseRepository;
     private final FileService fileService;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
     public List<Employee> getAllEmployees() {
@@ -38,12 +40,13 @@ public class EmployeeService {
 
     }
 
-    public Employee getEmployee(Long id) {
-        return employeeRepository.findById(id)
+    public EmployeeDto getEmployee(Long id) {
+        Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Employee (User) not found"));
+        return EmployeeMapper.toDto(employee);
     }
 
-    public Page<Employee> findEmployeesByCriteria(EmployeeCriteriaRequest employeeCriteria) {
+    public Page<EmployeeDto> findEmployeesByCriteria(EmployeeCriteriaRequest employeeCriteria) {
         Specification<Employee> spec = Specification.where(null);
 
         spec = UserService.filter(employeeCriteria, spec);
@@ -61,15 +64,18 @@ public class EmployeeService {
 
         Pageable pageable = CriteriaRequestUtil.createPageable(employeeCriteria, sort);
 
-        return employeeRepository.findAll(spec, pageable);
+        Page<Employee> employeePage = employeeRepository.findAll(spec, pageable);
+        return employeePage.map(EmployeeMapper::toDto);
     }
 
-    public List<Employee> findEmployeesByFullName(String search) {
+    public List<EmployeeDto> findEmployeesByFullName(String search) {
         Specification<Employee> spec = UserService.findAllByFullName(search);
-        return employeeRepository.findAll(spec);
+
+        List<Employee> employees = employeeRepository.findAll(spec);
+        return employees.stream().map(EmployeeMapper::toDto).toList();
     }
 
-    public Employee createEmployee(UpsertEmployeeDto upsertEmployeeDto) {
+    public EmployeeDto createEmployee(UpsertEmployeeDto upsertEmployeeDto) {
         Institution institution = institutionRepository.findFirstByOrderByIdAsc()
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Institution not found"));
 
@@ -100,11 +106,20 @@ public class EmployeeService {
         employee.setInstitution(institution);
 
         // TODO: send email (login: email, password: generatedPassword)
+        // Envoi de l'email avec les informations de connexion
+        String to = employee.getEmail();
+        String subject = "Création de compte";
+        String text = String.format("Bonjour %s,\n\nVotre compte a été créé avec succès. "
+                        + "Voici vos informations de connexion :\nEmail: %s\nMot de passe: %s",
+                employee.getFirstName(), employee.getEmail(), generatedPassword);
 
-        return employeeRepository.save(employee);
+        emailService.send(to, subject, text);
+
+        Employee createdEmployee = employeeRepository.save(employee);
+        return EmployeeMapper.toDto(createdEmployee);
     }
 
-    public Employee updateEmployee(UpsertEmployeeDto upsertEmployeeDto, Long employeeId) {
+    public EmployeeDto updateEmployee(UpsertEmployeeDto upsertEmployeeDto, Long employeeId) {
         if (!upsertEmployeeDto.getRoleName().equalsIgnoreCase(RoleEnum.MANAGER.name()) && !upsertEmployeeDto.getRoleName().equalsIgnoreCase(RoleEnum.OPERATOR.name())) {
             throw new AppException(HttpStatus.BAD_REQUEST, "Invalid role name");
         }
@@ -129,11 +144,12 @@ public class EmployeeService {
             throw new AppException(HttpStatus.CONFLICT, "Email already exists!");
         }
 
-        Employee updatedEmployee = EmployeeMapper.toEntity(upsertEmployeeDto, employee, role, manager);
+        Employee emp = EmployeeMapper.toEntity(upsertEmployeeDto, employee, role, manager);
 
         // TODO: send SMS userId email has been modified
 
-        return employeeRepository.save(updatedEmployee);
+        Employee updatedEmployee = employeeRepository.save(emp);
+        return EmployeeMapper.toDto(updatedEmployee);
     }
 
     @Transactional

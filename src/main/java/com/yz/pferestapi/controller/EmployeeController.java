@@ -1,8 +1,8 @@
 package com.yz.pferestapi.controller;
 
 import com.yz.pferestapi.dto.EmployeeCriteriaRequest;
+import com.yz.pferestapi.dto.EmployeeDto;
 import com.yz.pferestapi.dto.UpsertEmployeeDto;
-import com.yz.pferestapi.entity.Employee;
 import com.yz.pferestapi.service.EmployeeService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -26,16 +26,16 @@ public class EmployeeController {
 
     @GetMapping("/search")
     @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_MANAGER')")
-    public ResponseEntity<List<Employee>> getAllEmployeesByFullName(@RequestParam(required = false, defaultValue = "") String fullName) {
-        List<Employee> employees = employeeService.findEmployeesByFullName(fullName);
+    public ResponseEntity<List<EmployeeDto>> getAllEmployeesByFullName(@RequestParam(required = false, defaultValue = "") String fullName) {
+        List<EmployeeDto> employees = employeeService.findEmployeesByFullName(fullName);
         return ResponseEntity.ok(employees);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<Employee> getEmployee(@PathVariable Long id) {
+    public ResponseEntity<EmployeeDto> getEmployee(@PathVariable Long id) {
         System.out.println("employeeId = " + id);
-        Employee employee = employeeService.getEmployee(id);
+        EmployeeDto employee = employeeService.getEmployee(id);
         return ResponseEntity.ok(employee);
     }
 
@@ -44,23 +44,23 @@ public class EmployeeController {
     // http://example.com/api/users?param1=value1&param2=value2
     @GetMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_MANAGER')")
-    public ResponseEntity<Page<Employee>> findEmployeesByCriteria(EmployeeCriteriaRequest employeeCriteria) {
+    public ResponseEntity<Page<EmployeeDto>> findEmployeesByCriteria(EmployeeCriteriaRequest employeeCriteria) {
         System.out.println("employeeCriteria = " + employeeCriteria);
-        Page<Employee> employees = employeeService.findEmployeesByCriteria(employeeCriteria);
+        Page<EmployeeDto> employees = employeeService.findEmployeesByCriteria(employeeCriteria);
         return ResponseEntity.ok(employees);
     }
 
     @PostMapping
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<Employee> createEmployee(@Valid @RequestBody UpsertEmployeeDto upsertEmployeeDto) {
-        Employee createdEmployee = employeeService.createEmployee(upsertEmployeeDto);
+    public ResponseEntity<EmployeeDto> addEmployee(@Valid @RequestBody UpsertEmployeeDto upsertEmployeeDto) {
+        EmployeeDto createdEmployee = employeeService.createEmployee(upsertEmployeeDto);
         return new ResponseEntity<>(createdEmployee, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<Employee> updateEmployee(@Valid @RequestBody UpsertEmployeeDto upsertEmployeeDto, @PathVariable Long id) {
-        Employee updatedEmployee = employeeService.updateEmployee(upsertEmployeeDto, id);
+    public ResponseEntity<EmployeeDto> updateEmployee(@Valid @RequestBody UpsertEmployeeDto upsertEmployeeDto, @PathVariable Long id) {
+        EmployeeDto updatedEmployee = employeeService.updateEmployee(upsertEmployeeDto, id);
         return ResponseEntity.ok(updatedEmployee);
     }
 

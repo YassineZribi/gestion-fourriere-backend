@@ -1,5 +1,6 @@
 package com.yz.pferestapi.mapper;
 
+import com.yz.pferestapi.dto.EmployeeDto;
 import com.yz.pferestapi.dto.EmployeeWithSubordinatesDto;
 import com.yz.pferestapi.dto.UpsertEmployeeDto;
 import com.yz.pferestapi.entity.Employee;
@@ -27,10 +28,27 @@ public class EmployeeMapper {
         return mappedEmployee;
     }
 
-    public static EmployeeWithSubordinatesDto toDto(Employee employee) {
+    public static EmployeeWithSubordinatesDto toEmployeeWithSubordinatesDto(Employee employee) {
         EmployeeWithSubordinatesDto mappedEmployeeWithSubordinatesDto = UserMapper.toDto(employee, new EmployeeWithSubordinatesDto());
         mappedEmployeeWithSubordinatesDto.setPosition(employee.getPosition());
         mappedEmployeeWithSubordinatesDto.setSubordinates(new ArrayList<>());
         return mappedEmployeeWithSubordinatesDto;
     };
+
+    public static EmployeeDto toDto(Employee employee) {
+        if (employee == null) {
+            return null;
+        }
+
+        EmployeeDto mappedEmployeeDto = UserMapper.toDto(employee, new EmployeeDto());
+
+        mappedEmployeeDto.setPosition(employee.getPosition());
+
+        // Recursively map manager if it exists
+        if (employee.getManager() != null) {
+            mappedEmployeeDto.setManager(toDto(employee.getManager()));
+        }
+
+        return mappedEmployeeDto;
+    }
 }
