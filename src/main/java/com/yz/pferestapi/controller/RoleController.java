@@ -1,6 +1,6 @@
 package com.yz.pferestapi.controller;
 
-import com.yz.pferestapi.entity.Role;
+import com.yz.pferestapi.dto.RoleDto;
 import com.yz.pferestapi.service.RoleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,17 +17,17 @@ public class RoleController {
         this.roleService = roleService;
     }
 
-    @GetMapping
+    @GetMapping("/non-admin")
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<List<Role>> getNonAdminRoles() {
-        List<Role> roles = roleService.getNonAdminRoles();
+    public ResponseEntity<List<RoleDto>> getNonAdminRoles() {
+        List<RoleDto> roles = roleService.getNonAdminRoles();
         return ResponseEntity.ok(roles);
     }
 
-    @GetMapping("/all")
+    @GetMapping
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<List<Role>> getAllRoles() {
-        List<Role> roles = roleService.getAllRoles();
+    public ResponseEntity<List<RoleDto>> getAllRoles() {
+        List<RoleDto> roles = roleService.getAllRoles();
         return ResponseEntity.ok(roles);
     }
 }
