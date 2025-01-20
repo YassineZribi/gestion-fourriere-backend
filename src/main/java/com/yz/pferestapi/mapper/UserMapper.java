@@ -15,12 +15,22 @@ public class UserMapper {
         return entity;
     }
     public static <T extends User, U extends UserDto> U toDto(T entity, U entityDto) {
+        return map(entity, entityDto);
+    };
+
+    public static <T extends User> UserDto toDto(T entity) {
+        return map(entity, new UserDto());
+    }
+
+    private static <T extends User, U extends UserDto> U map(T entity, U entityDto) {
         entityDto.setId(entity.getId());
         entityDto.setFirstName(entity.getFirstName());
         entityDto.setLastName(entity.getLastName());
         entityDto.setEmail(entity.getEmail());
         entityDto.setPhoneNumber(entity.getPhoneNumber());
         entityDto.setPhotoPath(entity.getPhotoPath());
+        entityDto.setRole(RoleMapper.toDto(entity.getRole()));
+        entityDto.setEnabled(entity.isEnabled());
         return entityDto;
-    };
+    }
 }

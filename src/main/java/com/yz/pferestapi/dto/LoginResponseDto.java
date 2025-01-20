@@ -1,6 +1,5 @@
 package com.yz.pferestapi.dto;
 
-import com.yz.pferestapi.entity.User;
 import lombok.*;
 
 @Setter
@@ -9,6 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class LoginResponseDto {
-    private User user;
+    private UserDto user;
     private String accessToken;
 }

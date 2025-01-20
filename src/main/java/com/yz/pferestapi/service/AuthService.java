@@ -2,7 +2,9 @@ package com.yz.pferestapi.service;
 
 import com.yz.pferestapi.dto.LoginDto;
 import com.yz.pferestapi.dto.LoginResponseDto;
+import com.yz.pferestapi.dto.UserDto;
 import com.yz.pferestapi.entity.User;
+import com.yz.pferestapi.mapper.UserMapper;
 import com.yz.pferestapi.repository.RoleRepository;
 import com.yz.pferestapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +29,7 @@ public class AuthService {
 
     private final JwtService jwtService;
 
-    public LoginResponseDto login(LoginDto loginDto) {
+    public LoginResponseDto signIn(LoginDto loginDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
         );
@@ -35,10 +37,12 @@ public class AuthService {
         User user = (User) authentication.getPrincipal();
         // User user = userService.getUserByEmail(loginDto.getEmail());
 
+        UserDto userDto = UserMapper.toDto(user);
+
         String accessToken = jwtService.generateAccessToken(authentication);
 
         return LoginResponseDto.builder()
-                .user(user)
+                .user(userDto)
                 .accessToken(accessToken)
                 .build();
     }

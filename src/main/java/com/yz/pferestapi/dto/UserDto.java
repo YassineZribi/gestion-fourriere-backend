@@ -1,5 +1,6 @@
 package com.yz.pferestapi.dto;
 
+import com.yz.pferestapi.entity.Role;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -17,4 +18,6 @@ public class UserDto {
     private String email;
     private String phoneNumber;
     private String photoPath;
+    private RoleDto role;
+    private boolean enabled;
 }

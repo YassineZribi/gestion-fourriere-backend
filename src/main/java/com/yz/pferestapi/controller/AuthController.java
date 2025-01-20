@@ -5,10 +5,7 @@ import com.yz.pferestapi.dto.LoginResponseDto;
 import com.yz.pferestapi.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.Principal;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,17 +20,17 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginDto loginDto) {
-        LoginResponseDto loginResponseDto = authService.login(loginDto);
+        LoginResponseDto loginResponseDto = authService.signIn(loginDto);
         return ResponseEntity.ok(loginResponseDto);
     }
 
-    @GetMapping("/greeting")
-    public String getLoginInfo(Principal principal) {
-        return "hello " + principal.getName();
-    }
-
-    @GetMapping("/profile")
-    public Authentication authentication(Authentication authentication) {
-        return authentication;
-    }
+//    @GetMapping("/greeting")
+//    public String getLoginInfo(Principal principal) {
+//        return "hello " + principal.getName();
+//    }
+//
+//    @GetMapping("/profile")
+//    public Authentication authentication(Authentication authentication) {
+//        return authentication;
+//    }
 }
