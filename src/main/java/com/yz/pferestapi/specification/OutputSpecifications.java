@@ -4,6 +4,8 @@ import com.yz.pferestapi.entity.Output;
 import com.yz.pferestapi.util.NumberUtil;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Date;
+
 public class OutputSpecifications {
     public static Specification<Output> discountIs(Boolean discount) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("discount"), discount);
@@ -36,5 +38,20 @@ public class OutputSpecifications {
             String receiptNumberString = String.valueOf(receiptNumber);
             return criteriaBuilder.like(root.get("receiptNumber").as(String.class), receiptNumberString + "%");
         };
+    }
+
+    public static Specification<Output> hasRegister(Long registerId) {
+        return (root, query, builder) ->
+                builder.equal(root.join("input").join("register").get("id"), registerId);
+    }
+
+    public static Specification<Output> isWithinDateRange(Date startDate, Date endDate) {
+        return (root, query, builder) ->
+                builder.between(root.get("dateTime"), startDate.toInstant(), endDate.toInstant());
+    }
+
+    public static Specification<Output> hasSource(Long sourceId) {
+        return (root, query, builder) ->
+                builder.equal(root.join("input").join("source").get("id"), sourceId);
     }
 }
