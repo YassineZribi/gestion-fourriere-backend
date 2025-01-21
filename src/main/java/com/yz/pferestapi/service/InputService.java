@@ -47,7 +47,7 @@ public class InputService {
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Input not found"));
     }
 
-    public Page<Input> findInputsByCriteria(InputCriteriaRequest inputCriteria) {
+    private Specification<Input> getInputSpecification(InputCriteriaRequest inputCriteria) {
         Specification<Input> spec = Specification.where(null);
 
         spec = OperationService.filter(inputCriteria, spec);
@@ -75,6 +75,12 @@ public class InputService {
         if (inputCriteria.getDescription() != null) {
             spec = spec.and(InputSpecifications.descriptionContains(inputCriteria.getDescription()));
         }
+
+        return spec;
+    }
+
+    public Page<Input> findInputsByCriteria(InputCriteriaRequest inputCriteria) {
+        Specification<Input> spec = getInputSpecification(inputCriteria);
 
         Sort sort = CriteriaRequestUtil.buildSortCriteria(inputCriteria);
 
