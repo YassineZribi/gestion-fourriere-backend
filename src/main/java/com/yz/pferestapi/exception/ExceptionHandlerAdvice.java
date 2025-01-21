@@ -3,6 +3,7 @@ package com.yz.pferestapi.exception;
 import com.yz.pferestapi.dto.ErrorResponse;
 import com.yz.pferestapi.dto.FormValidationErrorResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -28,9 +29,9 @@ import java.util.Map;
 public class ExceptionHandlerAdvice {
 
     @ExceptionHandler(AppException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    ErrorResponse handleObjectNotFoundException(AppException ex) {
-        return new ErrorResponse(ex.getStatus().value(), ex.getMessage(), ex.getMessage());
+    ResponseEntity<ErrorResponse> handleGlobalAppException(AppException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(ex.getStatus().value(), ex.getMessage(), ex.getMessage());
+        return new ResponseEntity<>(errorResponse, ex.getStatus());
     }
 
     /**
