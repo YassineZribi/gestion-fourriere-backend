@@ -150,6 +150,9 @@ public class InputService {
         checkForDuplicateArticleIds(upsertInputDto.getInputOperationLines());
 
         Input input = new Input();
+        input.setAddress(upsertInputDto.getAddress());
+        input.setLatitude(upsertInputDto.getLatitude());
+        input.setLongitude(upsertInputDto.getLongitude());
         input.setRegister(register);
         input.setSubRegister(subRegister);
         input.setOwner(owner);
@@ -224,6 +227,9 @@ public class InputService {
 
         checkForDuplicateArticleIds(upsertInputDto.getInputOperationLines());
 
+        input.setAddress(upsertInputDto.getAddress());
+        input.setLatitude(upsertInputDto.getLatitude());
+        input.setLongitude(upsertInputDto.getLongitude());
         input.setRegister(register);
         input.setSubRegister(subRegister);
         input.setOwner(owner);

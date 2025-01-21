@@ -13,6 +13,15 @@ import java.util.List;
 @Setter
 @ToString
 public class UpsertInputDto extends UpsertOperationDto {
+    @NotEmpty(message = "Address should not be null or empty")
+    private String address;
+
+    @NotNull(message = "Latitude should not be null")
+    private Double latitude;
+
+    @NotNull(message = "Longitude should not be null")
+    private Double longitude;
+
     @NotNull(message = "Register id should not be null")
     private Long registerId;
 

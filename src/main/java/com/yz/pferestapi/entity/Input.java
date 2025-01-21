@@ -18,6 +18,15 @@ public class Input extends Operation {
     @Enumerated(EnumType.STRING)
     private ProcessingStatus status = ProcessingStatus.FULLY_IN;
 
+    @Column(nullable = false)
+    private String address;
+
+    @Column(nullable = false)
+    private Double latitude;
+
+    @Column(nullable = false)
+    private Double longitude;
+
     @ManyToOne
     @JoinColumn(name = "register_id")
     private Register register;
