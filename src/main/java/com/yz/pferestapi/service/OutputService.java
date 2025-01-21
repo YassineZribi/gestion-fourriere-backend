@@ -46,7 +46,7 @@ public class OutputService {
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Output not found"));
     }
 
-    public Page<Output> findOutputsByCriteria(OutputCriteriaRequest outputCriteria) {
+    private Specification<Output> getOutputSpecification(OutputCriteriaRequest outputCriteria) {
         Specification<Output> spec = Specification.where(null);
 
         spec = OperationService.filter(outputCriteria, spec);
@@ -62,6 +62,12 @@ public class OutputService {
         if (outputCriteria.getReceiptNumber() != null) {
             spec = spec.and(OutputSpecifications.receiptNumberContains(outputCriteria.getReceiptNumber()));
         }
+
+        return spec;
+    }
+
+    public Page<Output> findOutputsByCriteria(OutputCriteriaRequest outputCriteria) {
+        Specification<Output> spec = getOutputSpecification(outputCriteria);
 
         Sort sort = CriteriaRequestUtil.buildSortCriteria(outputCriteria);
 
