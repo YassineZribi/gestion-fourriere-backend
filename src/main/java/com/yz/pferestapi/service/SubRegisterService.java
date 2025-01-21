@@ -75,9 +75,9 @@ public class SubRegisterService {
     }
 
     public SubRegister createSubRegister(UpsertSubRegisterDto upsertSubRegisterDto) {
-        if (subRegisterRepository.existsByNameIgnoreCase(upsertSubRegisterDto.getName())) {
-            throw new AppException(HttpStatus.CONFLICT, "Name already exists!");
-        }
+//        if (subRegisterRepository.existsByNameIgnoreCase(upsertSubRegisterDto.getName())) {
+//            throw new AppException(HttpStatus.CONFLICT, "Name already exists!");
+//        }
 
         Register register = null;
         if (upsertSubRegisterDto.getRegisterId() != null) {
@@ -94,9 +94,9 @@ public class SubRegisterService {
         SubRegister subRegister = subRegisterRepository.findById(subRegisterId)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "SubRegister not found"));
 
-        if (subRegisterRepository.existsByNameIgnoreCaseAndIdNot(upsertSubRegisterDto.getName(), subRegisterId)) {
-            throw new AppException(HttpStatus.CONFLICT, "Name already exists!");
-        }
+//        if (subRegisterRepository.existsByNameIgnoreCaseAndIdNot(upsertSubRegisterDto.getName(), subRegisterId)) {
+//            throw new AppException(HttpStatus.CONFLICT, "Name already exists!");
+//        }
 
         Register register = null;
         if (upsertSubRegisterDto.getRegisterId() != null) {
