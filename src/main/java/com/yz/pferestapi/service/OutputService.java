@@ -3,6 +3,7 @@ package com.yz.pferestapi.service;
 import com.yz.pferestapi.dto.OutputCriteriaRequest;
 import com.yz.pferestapi.dto.UpsertOutputDto;
 import com.yz.pferestapi.entity.*;
+import com.yz.pferestapi.entity.report.OutputRow;
 import com.yz.pferestapi.exception.AppException;
 import com.yz.pferestapi.repository.ArticleRepository;
 import com.yz.pferestapi.repository.InputOperationLineRepository;
@@ -11,6 +12,12 @@ import com.yz.pferestapi.repository.OutputRepository;
 import com.yz.pferestapi.specification.OutputSpecifications;
 import com.yz.pferestapi.util.CriteriaRequestUtil;
 import lombok.RequiredArgsConstructor;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.export.JRPdfExporter;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,6 +26,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Instant;
 import java.util.*;
 
@@ -29,6 +39,7 @@ public class OutputService {
     private final InputRepository inputRepository;
     private final ArticleRepository articleRepository;
     private final InputOperationLineRepository inputOperationLineRepository;
+    private final TemplateService templateService;
 
     public Output getOutput(Long outputId) {
         return outputRepository.findById(outputId)
@@ -57,6 +68,39 @@ public class OutputService {
         Pageable pageable = CriteriaRequestUtil.createPageable(outputCriteria, sort);
 
         return outputRepository.findAll(spec, pageable);
+    }
+
+    private List<Output> getFilteredOutputList(OutputCriteriaRequest outputCriteria) {
+        Specification<Output> spec = getOutputSpecification(outputCriteria);
+
+        Sort sort = CriteriaRequestUtil.buildSortCriteria(outputCriteria);
+
+        return outputRepository.findAll(spec, sort);
+    }
+
+    public ByteArrayOutputStream generateOutputsReport(OutputCriteriaRequest outputCriteria) throws IOException, JRException {
+        InputStream inputStream = templateService.getTemplateFile("output-operation-list-report.jrxml").getInputStream();
+
+        List<Output> filteredOutputList = getFilteredOutputList(outputCriteria);
+
+        List<OutputRow> outputRowList = filteredOutputList.stream().map(OutputRow::convert).toList();
+
+        JRBeanCollectionDataSource outputsTableDatasource = new JRBeanCollectionDataSource(outputRowList);
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("outputsTableDataset", outputsTableDatasource);
+
+        JasperReport report = JasperCompileManager.compileReport(inputStream);
+        JasperPrint print = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        JRPdfExporter exporter = new JRPdfExporter();
+        SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+        configuration.setCompressed(true);
+        exporter.setConfiguration(configuration);
+        exporter.setExporterInput(new SimpleExporterInput(print));
+        exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(byteArrayOutputStream));
+        exporter.exportReport();
+        return byteArrayOutputStream;
     }
 
     @Transactional

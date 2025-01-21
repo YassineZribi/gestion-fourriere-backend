@@ -5,7 +5,9 @@ import com.yz.pferestapi.dto.UpdateInputOwnerDto;
 import com.yz.pferestapi.dto.UpsertInputDto;
 import com.yz.pferestapi.entity.Input;
 import com.yz.pferestapi.service.InputService;
+import net.sf.jasperreports.engine.JRException;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 @RequestMapping("/operations/inputs")
@@ -70,5 +73,14 @@ public class InputController {
     public ResponseEntity<?> deleteInput(@PathVariable Long id) throws IOException {
         inputService.deleteInput(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/report")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_MANAGER')")
+    public ResponseEntity<byte[]> generateInputsReport(InputCriteriaRequest inputCriteria) throws JRException, IOException {
+        ByteArrayOutputStream reportStream = inputService.generateInputsReport(inputCriteria);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_PDF);
+        return new ResponseEntity<>(reportStream.toByteArray(), httpHeaders, HttpStatus.OK);
     }
 }
